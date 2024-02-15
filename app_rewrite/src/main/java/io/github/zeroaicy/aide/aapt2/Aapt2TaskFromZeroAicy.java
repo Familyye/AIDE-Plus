@@ -1,15 +1,32 @@
 package io.github.zeroaicy.aide.aapt2;
-import android.text.*;
-import com.aide.ui.build.android.*;
-import com.aide.ui.util.*;
-import com.sdklite.aapt.*;
-import io.github.zeroaicy.aide.preference.*;
-import io.github.zeroaicy.aide.utils.*;
-import io.github.zeroaicy.util.*;
-import io.github.zeroaicy.util.reflect.*;
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
+import android.text.TextUtils;
+import com.aide.ui.build.android.AaptService$b;
+import com.aide.ui.util.FileSystem;
+import com.sdklite.aapt.Aapt;
+import com.sdklite.aapt.SymbolParser;
+import com.sdklite.aapt.Symbols;
+import io.github.zeroaicy.aide.preference.ZeroAicySetting;
+import io.github.zeroaicy.aide.utils.AndroidManifestParser;
+import io.github.zeroaicy.util.FileUtil;
+import io.github.zeroaicy.util.Log;
+import io.github.zeroaicy.util.MD5Util;
+import io.github.zeroaicy.util.reflect.ReflectPie;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.CRC32;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class Aapt2TaskFromZeroAicy {
 	public static final byte[] emptyZipBytes = new byte[]{0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,

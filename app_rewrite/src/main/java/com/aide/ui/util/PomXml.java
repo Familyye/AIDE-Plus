@@ -3,12 +3,6 @@
 //
 package com.aide.ui.util;
 
-import abcd.cy;
-import abcd.dy;
-import abcd.ey;
-import abcd.fy;
-import abcd.gy;
-import abcd.iy;
 import com.aide.ui.util.BuildGradle;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -18,8 +12,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import com.aide.ui.util.BuildGradle.MavenDependency;
-import io.github.zeroaicy.util.Log;
 
 public class PomXml extends Configuration<PomXml> {
     public  static PomXml empty = new PomXml();

@@ -26,8 +26,8 @@ dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	
 	compile fileTree(dir: 'provider', include: ['.jar'])
-	// r8
-	api "com.android.tools:r8:8.2.33"
+	// r8 必须脱糖否则只能安卓13使用
+	// api "com.android.tools:r8:8.2.33"
 	
 	api project(':appAideBase')
 	

@@ -31,7 +31,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import sun1.security.pkcs.PKCS8Key;
-import java.nio.file.Files;
 
 public class ZeroAicyPackagingWorker extends PackagingWorkerWrapper{
 
