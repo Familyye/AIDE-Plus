@@ -91,6 +91,7 @@
 		<item name="color_app_background">@color/app_background</item>
 		<item name="color_browser_label">@color/browser_label</item>
 		<item name="color_browser_label_gray">@color/browser_label_gray</item>
+		
 		<item name="color_key">@color/quickkey</item>
 		<item name="color_list_separator">@color/list_separator</item>
 		<item name="color_selected_item">@color/selected_list_item</item>
@@ -140,6 +141,7 @@
 	
 	<color name="editor_background">@color/m3_sys_color_dark_surface_container</color>
 	<color name="editor_background_light">@color/m3_sys_color_light_surface_container</color>
+	
 	<style name="App.Theme.Material3.Light.ThemedActionbarActivity" parent="Theme.Material3.Light">
 		<!-- tab text主题 Material3没有复写 默认-->
         <item name="actionBarTabStyle">@style/App.Widget.Light.ActionBar.TabView.ThemedActionbarActivity</item>
@@ -148,8 +150,9 @@
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
 
-		
+		<item name="android:selectableItemBackground">@color/m3_sys_color_light_surface_container</item>
 		<item name="color_app_background">@color/m3_sys_color_light_surface_container</item>
+		
 		<item name="color_browser_label">@color/browser_label_light</item>
 		<item name="color_browser_label_gray">@color/browser_label_gray_light</item>
 		<item name="color_key">@color/quickkey_light</item>
