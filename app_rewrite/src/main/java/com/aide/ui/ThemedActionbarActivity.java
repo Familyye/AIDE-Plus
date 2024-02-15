@@ -6,8 +6,10 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import com.aide.ui.rewrite.R;
 import io.github.zeroaicy.aide.preference.ZeroAicySetting;
+import androidx.appcompat.app.AppCompatActivity;
+import android.view.MenuInflater;
 
-public class ThemedActionbarActivity extends Activity {
+public class ThemedActionbarActivity extends AppCompatActivity {
 
 
     @Override
@@ -18,10 +20,10 @@ public class ThemedActionbarActivity extends Activity {
 		super.onCreate(bundle);
 		
 		if (ZeroAicySetting.isLightTheme()) {
-			setTheme(R.style.ActivityActionbarThemeLight);
+			setTheme(R.style.App_Theme_Material3_Light_ThemedActionbarActivity);
 		}
 		else {
-			setTheme(R.style.ActivityActionbarThemeDark);
+			setTheme(R.style.App_Theme_Material3_Dark_ThemedActionbarActivity);
 		}
     }
 
@@ -55,6 +57,23 @@ public class ThemedActionbarActivity extends Activity {
 			}
 		}
 	}
+	public SupportActionbar actionBar;
+	@Override
+	public android.app.ActionBar getActionBar() {
+		if (actionBar == null) {
+			actionBar = SupportActionbar.getSupportActionbar(super.getSupportActionBar());
+		}
+		return actionBar;
+	}
 
+	//修复MenuInflater
+	MenuInflater menuInflater;
+	@Override
+	public MenuInflater getMenuInflater(){
+		if( this.menuInflater == null ){
+			menuInflater = new MenuInflater(this);
+		}
+		return menuInflater;
+	}
 }
 

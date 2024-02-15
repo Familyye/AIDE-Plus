@@ -22,7 +22,7 @@ android {
 		}
 		"AIDE+2" {
 			applicationId "io.github.zeroaicy.aide2"
-			versionName "2.1.0-[3.2.210316]"
+			versionName "2.1.0.1-androidx-[3.2.210316]"
 		}
 		"AIDE+4" {
 			applicationId "io.github.zeroaicy.aide4"

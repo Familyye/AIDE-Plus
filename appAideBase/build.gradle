@@ -23,9 +23,9 @@ android {
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	
-	//api project(':material+')
-	//api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0"
-	//*
+	api project(':material+')
+	
+	/*
 	// shizuku
 	api "dev.rikka.shizuku:provider:13+"
 	api "com.google.guava:listenablefuture:1.0"

@@ -144,7 +144,7 @@
 
 		<!-- 被修改的 -->
 		<activity
-            android:theme="@style/ActivityActionbarThemeLight"
+            android:theme="@style/App.Theme.Material3.Light.ThemedActionbarActivity"
             android:name="io.github.zeroaicy.aide.activity.ZeroAicyMainActivity"
 			android:launchMode="singleTask"
             android:screenOrientation="user"
