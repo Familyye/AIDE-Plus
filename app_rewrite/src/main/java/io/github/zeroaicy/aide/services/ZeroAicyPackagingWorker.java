@@ -31,6 +31,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import sun1.security.pkcs.PKCS8Key;
+import java.util.Comparator;
 
 public class ZeroAicyPackagingWorker extends PackagingWorkerWrapper{
 
@@ -575,12 +576,11 @@ public class ZeroAicyPackagingWorker extends PackagingWorkerWrapper{
 
 			for ( String dependencyLib : getAllDependencyLibs() ){
 				File jarFile = new File(dependencyLib);
-
 				if ( !jarFile.exists() ){
 					//不是依赖库跳过
 					continue;
 				}
-
+				
 				String fileName = getFileName(dependencyLib).toLowerCase();
 				if ( !fileName.endsWith(".jar") ){
 					continue;
@@ -674,8 +674,8 @@ public class ZeroAicyPackagingWorker extends PackagingWorkerWrapper{
 				compileOnlyPaths.add(new File(jarPath).toPath());
 			}
 
-			BaseDiagnosticsHandler baseDiagnosticsHandler = new BaseDiagnosticsHandler();
-			R8Command.Builder builder = R8Command.builder(baseDiagnosticsHandler);
+			//BaseDiagnosticsHandler baseDiagnosticsHandler = new BaseDiagnosticsHandler();
+			R8Command.Builder builder = R8Command.builder(/*baseDiagnosticsHandler*/);
 
 			logDebug("开始添加AIDE输出的类");
 			for ( String inputClassPath : mainClassFilePaths ){
@@ -707,9 +707,9 @@ public class ZeroAicyPackagingWorker extends PackagingWorkerWrapper{
 			//运行r8
 			R8.run(r8Command);
 
-			if ( baseDiagnosticsHandler.hasError() ){
+			/*if ( baseDiagnosticsHandler.hasError() ){
 				throw new RuntimeException(baseDiagnosticsHandler.getErrorMessage());
-			}
+			}*/
 		}
 
 		private List<String> method() throws InterruptedException{
@@ -1073,7 +1073,8 @@ public class ZeroAicyPackagingWorker extends PackagingWorkerWrapper{
 				return;
 			}
 			logDebug("从JAR文件添加资源");
-
+			List<String> runtimeOnlyJars = new ArrayList<>();
+			
 			for ( String dependencyLibPath : dependencyLibs ){
 				String dependencyLibLowerCase = dependencyLibPath.toLowerCase();
 
@@ -1082,13 +1083,49 @@ public class ZeroAicyPackagingWorker extends PackagingWorkerWrapper{
 					continue;
 				}
 				if ( isRuntimeOnly(dependencyLibLowerCase) ){
-					this.packagingZipFile(dependencyLibPath, dexZipEntryTransformer, packagingZipOutput, false);
+					runtimeOnlyJars.add(dependencyLibPath);
 					continue;
 				}
-
 				this.packagingZipFile(dependencyLibPath, zipResourceZipEntryTransformer, packagingZipOutput, false);
 			}
+			//排序，_%d_resource.jar %d作为排序依据
+			// 越小则越往后打包
+			runtimeOnlyJars.sort(new Comparator<String>(){
+					@Override
+					public int compare(String o1, String o2){
+						String o1Name = new File(o1).getName();
+						String o2Name = new File(o2).getName();
 
+						int defaultVersion = 0;
+						int o1Version = defaultVersion;
+						int o2Version = defaultVersion;
+						
+						
+						int suffixLength = "_resource.jar".length();
+						int versionTempStart = o1Name.lastIndexOf("_", o1Name.length() - suffixLength - 1);
+						if ( versionTempStart > 0 ){
+							String versionTemp = o1Name.substring(versionTempStart + 1, o1Name.lastIndexOf("_"));
+							try{
+								o1Version = Integer.parseInt(versionTemp);
+							}
+							catch (NumberFormatException e){}
+						}
+						
+						versionTempStart = o2Name.lastIndexOf("_", o2Name.length() - suffixLength - 1);
+						if ( versionTempStart > 0 ){
+							String versionTemp = o2Name.substring(versionTempStart + 1, o2Name.lastIndexOf("_"));
+							try{
+								o2Version = Integer.parseInt(versionTemp);
+							}
+							catch (NumberFormatException e){}
+						}
+						return o2Version - o1Version;
+					}
+				});
+			for( String runtimeOnlyJarPath : runtimeOnlyJars){
+				this.packagingZipFile(runtimeOnlyJarPath, dexZipEntryTransformer, packagingZipOutput, false);
+				//System.out.println(runtimeOnlyJarPath);
+			}
 		}
 
 		/**
