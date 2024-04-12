@@ -11,6 +11,7 @@ import com.aide.ui.browsers.ErrorBrowser;
 import android.app.AlertDialog;
 import com.aide.ui.rewrite.R;
 import android.content.DialogInterface;
+import com.aide.ui.services.MavenService;
 
 class CompilerPreferencesFragment$c implements Preference.OnPreferenceClickListener {
     CompilerPreferencesFragment$c(CompilerPreferencesFragment compilerPreferencesFragment) {}
@@ -25,7 +26,8 @@ class CompilerPreferencesFragment$c implements Preference.OnPreferenceClickListe
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						App.getMavenService().nw();
+						MavenService mavenService = (MavenService)(Object)App.getMavenService();
+						mavenService.refresh();
 					}
 				});
             builder.setNegativeButton(android.R.string.cancel, (DialogInterface.OnClickListener) null);

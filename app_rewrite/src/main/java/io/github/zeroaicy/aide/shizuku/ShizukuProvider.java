@@ -162,6 +162,8 @@ public class ShizukuProvider extends ContentProvider {
     public void attachInfo(Context context, ProviderInfo info) {
         super.attachInfo(context, info);
 
+		//初始化Shizuku库
+		ShizukuUtil.initialized(context);
         if (info.multiprocess)
             throw new IllegalStateException("android:multiprocess must be false");
 
@@ -173,8 +175,7 @@ public class ShizukuProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-
-        if (enableSuiInitialization && !Sui.isSui()) {
+		if (enableSuiInitialization && !Sui.isSui()) {
             boolean result = Sui.init(getContext().getPackageName());
             Log.d(TAG, "Initialize Sui: " + result);
         }
@@ -198,7 +199,6 @@ public class ShizukuProvider extends ContentProvider {
 		Bundle reply = new Bundle();
         switch (method) {
             case METHOD_SEND_BINDER: {
-					Log.d(TAG, "发送Binder");
 					handleSendBinder(extras);
 					break;
 				}

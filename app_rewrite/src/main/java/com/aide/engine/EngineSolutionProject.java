@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import com.aide.common.AppLog;
 import com.aide.engine.EngineSolution;
 import io.github.zeroaicy.util.ContextUtil;
 import io.github.zeroaicy.util.Log;
@@ -17,10 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-import com.aide.common.AppLog;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -77,9 +74,7 @@ public class EngineSolutionProject implements Parcelable {
     public int describeContents(){
 		return 0;
     }
-
-	private static String zipParcelDataName = "com.aide.engine.EngineSolutionProject";
-
+	
 	private static SharedPreferences sharedPreferences;
 	public static SharedPreferences getSharedPreferences(){
 		if ( sharedPreferences == null ){
@@ -94,10 +89,10 @@ public class EngineSolutionProject implements Parcelable {
 		//写入数据
 		writeToParcel(obtain);
 
-		method(obtain, dest);
+		compression(obtain, dest);
     }
 
-	private void method(Parcel obtain, Parcel dest) throws RuntimeException{
+	private void compression(Parcel obtain, Parcel dest) throws Error{
 		boolean data_compression_enable = getSharedPreferences().getBoolean("data_compression_enable", false);
 		int data_compression_threshold = 25;
 		try{
@@ -123,7 +118,7 @@ public class EngineSolutionProject implements Parcelable {
 				dest.writeByteArray(data, 0, data.length);
 			}
 			catch (Throwable e){
-				throw new RuntimeException(e);
+				throw new Error(e);
 			}
 		}
 		else{
@@ -184,7 +179,7 @@ public class EngineSolutionProject implements Parcelable {
 		compress = dest.readInt() == 1;
 		if ( compress ){
 			AppLog.DW("解压模式");
-			readParcel = unZipParcel(dest);
+			readParcel = decompression(dest);
 		}
 
 		this.projectName = readParcel.readString();
@@ -229,13 +224,12 @@ public class EngineSolutionProject implements Parcelable {
 		}
     }
 
-	private Parcel unZipParcel(Parcel dest){
+	private Parcel decompression(Parcel dest){
 		try{
 			//读取数据长度
 			byte[] buf = dest.createByteArray();
 			GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(buf));
 			byte[] unzipParcelData = gzipInputStream.readAllBytes();
-
 			Parcel obtain = Parcel.obtain();
 			obtain.unmarshall(unzipParcelData, 0, unzipParcelData.length);
 			obtain.setDataPosition(0);
@@ -248,7 +242,7 @@ public class EngineSolutionProject implements Parcelable {
 		catch (Throwable e){
 			Log.d("EngineSolutionProject", "unZipParcel", e);
 
-			throw new RuntimeException(e);
+			throw new Error(e);
 		}
 	}
 }

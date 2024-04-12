@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.android.dex.ClassDef;
-import com.android.dex.Dex;
+import com.sdklite.dex.ClassDef;
+import com.sdklite.dex.Dex;
 import com.sdklite.io.IOUtil;
 
 /**

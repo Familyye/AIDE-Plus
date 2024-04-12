@@ -250,16 +250,20 @@ public class SigningService {
     }
 
     @ey(method = -765423962236243125L)
-    private void FH(String str, String str2, String str3, String str4, SigningRunnable signingRunnable) {
+    private void FH(String keystorePath, String str2, String str3, String str4, SigningRunnable signingRunnable) {
         try {
             if (j6) {
-                iy.J8(-4033616883024997667L, this, str, str2, str3, str4, signingRunnable);
+                iy.J8(-4033616883024997667L, this, keystorePath, str2, str3, str4, signingRunnable);
             }
             try {
+				if ( keystorePath.endsWith(".x509.pem") 
+					|| keystorePath.endsWith(".pk8") ){
+					signingRunnable.j6(keystorePath, str2, str3, str4);
+				}
                 JKSKeyStore jKSKeyStore = new JKSKeyStore();
-                jKSKeyStore.load(new FileInputStream(str), str2.toCharArray());
+                jKSKeyStore.load(new FileInputStream(keystorePath), str2.toCharArray());
                 if (jKSKeyStore.getKey(str3, str4.toCharArray()) != null) {
-                    signingRunnable.j6(str, str2, str3, str4);
+                    signingRunnable.j6(keystorePath, str2, str3, str4);
                     return;
                 }
                 throw new Exception("no alias");
@@ -270,26 +274,30 @@ public class SigningService {
         }
 		catch (Throwable th) {
             if (DW) {
-                iy.lg(th, -4033616883024997667L, this, str, str2, str3, str4, signingRunnable);
+                iy.lg(th, -4033616883024997667L, this, keystorePath, str2, str3, str4, signingRunnable);
             }
             throw new Error(th);
         }
     }
 
     @ey(method = 4111598620218933911L)
-    private void VH(String str, String str2, SigningRunnable signingRunnable) {
+    private void VH(String keystorePath, String str2, SigningRunnable signingRunnable) {
         try {
             if (j6) {
-                iy.we(3682206307279491105L, this, str, str2, signingRunnable);
+                iy.we(3682206307279491105L, this, keystorePath, str2, signingRunnable);
             }
             try {
+				if ( keystorePath.endsWith(".x509.pem") 
+					|| keystorePath.endsWith(".pk8") ){
+					signingRunnable.j6(keystorePath, "", "", "");
+				}
                 JKSKeyStore jKSKeyStore = new JKSKeyStore();
-                jKSKeyStore.load(new FileInputStream(str), str2.toCharArray());
+                jKSKeyStore.load(new FileInputStream(keystorePath), str2.toCharArray());
                 ArrayList list = Collections.list(jKSKeyStore.aliases());
                 if (list.size() == 1) {
-                    gn(str, str2, (String) list.get(0), signingRunnable);
+                    gn(keystorePath, str2, (String) list.get(0), signingRunnable);
                 } else {
-                    MessageBox.VH(App.getMainActivity(), "Select keystore alias", list, new b(this, str, str2, signingRunnable));
+                    MessageBox.VH(App.getMainActivity(), "Select keystore alias", list, new b(this, keystorePath, str2, signingRunnable));
                 }
             }
 			catch (Exception unused) {
@@ -298,7 +306,7 @@ public class SigningService {
         }
 		catch (Throwable th) {
             if (DW) {
-                iy.U2(th, 3682206307279491105L, this, str, str2, signingRunnable);
+                iy.U2(th, 3682206307279491105L, this, keystorePath, str2, signingRunnable);
             }
             throw new Error(th);
         }
@@ -383,6 +391,10 @@ public class SigningService {
             if (signingConfig != null) {
                 try {
                     String storeFilePath = signingConfig.getStoreFilePath();
+					if ( storeFilePath.endsWith(".x509.pem") 
+						|| storeFilePath.endsWith(".pk8") ){
+						signingRunnable.j6(storeFilePath, signingConfig.storePassword, signingConfig.keyAlias, signingConfig.keyPassword);
+					}
                     JKSKeyStore jKSKeyStore = new JKSKeyStore();
                     jKSKeyStore.load(new FileInputStream(storeFilePath), signingConfig.storePassword.toCharArray());
                     if (jKSKeyStore.getKey(signingConfig.keyAlias, signingConfig.keyPassword.toCharArray()) != null) {

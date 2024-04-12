@@ -52,6 +52,8 @@
 #扩展接口
 -keep class io.github.zeroaicy.aide.extend.ZeroAicyExtensionInterface {  
     static <methods>;
+    <fields>;
+    <methods>;
 }
 
 #签名模块
@@ -79,6 +81,7 @@
     <fields>;
     <methods>;
 }
+
 # 重写AIDE底包方法类
 -keep class com.aide.** {
     <fields>;
@@ -88,7 +91,14 @@
     <fields>;
     <methods>;
 }
-
+-keep class com.support.** {
+    <fields>;
+    <methods>;
+}
+-keep class androidx.** {
+    <fields>;
+    <methods>;
+}
 #反射
 -keep class io.github.zeroaicy.util.reflect.** {
     <fields>;
@@ -109,4 +119,5 @@
 -dontwarn abcd.**
 -dontwarn com.aide.**
 -dontwarn java.util.Comparator$_DC 
+-dontwarn
 

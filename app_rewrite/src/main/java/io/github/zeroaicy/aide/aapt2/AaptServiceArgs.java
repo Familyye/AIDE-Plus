@@ -27,6 +27,7 @@ import java.util.Set;
 import com.aide.ui.build.android.AaptService$b;
 import com.aide.ui.util.*;
 import java.util.*;
+import io.github.zeroaicy.aide.utils.ZeroAicyBuildGradle;
 
 public class AaptServiceArgs {
 
@@ -75,6 +76,8 @@ public class AaptServiceArgs {
 	//主项目的res
 	public String mainProjectResPath;
 
+	public final boolean shrinkResources;
+
 	public AaptServiceArgs(Object mAaptS$c_Object) {
 
 
@@ -87,19 +90,25 @@ public class AaptServiceArgs {
 
 			if (FileSystem.exists(buildGradlePath)) {
 				isGradleProject = true;
-				BuildGradle buildGradle = new BuildGradle();
+				ZeroAicyBuildGradle buildGradle = ZeroAicyBuildGradle.getSingleton();
 				buildGradle = buildGradle.getConfiguration((buildGradlePath));
-
-				this.defaultMinSdk = Integer.parseInt(buildGradle.getMinSdkVersion(null));
-				this.defaultTargetSdk = Integer.parseInt(buildGradle.getTargetSdkVersion(null));				
+				
+				// 混淆代码
+				this.shrinkResources = buildGradle.isShrinkResources();
+				
+				// 渠道包 暂时不用渠道包的 minsdk
+				this.defaultMinSdk = parseInt(buildGradle.getMinSdkVersion(null), 14);
+				this.defaultTargetSdk = parseInt(buildGradle.getTargetSdkVersion(null), 28);
 			} else {
 				this.defaultMinSdk = 14;
 				this.defaultTargetSdk = 28;
+				this.shrinkResources = false;
 			}
 		}
 		catch (Throwable e) {
 			this.defaultMinSdk = 14;
 			this.defaultTargetSdk = 28;
+			this.shrinkResources = false;
 		}
 
 
@@ -329,7 +338,7 @@ public class AaptServiceArgs {
 	// 取得Aapt2路径
 	public static String getAapt2Path2() {
 		//会从assets自动解压
-		String aapt2Path = AssetInstallationService.DW("aapt2", false);
+		String aapt2Path = AssetInstallationService.DW("aapt2", true);
 		File aapt2File = new File(aapt2Path);
 		if (!aapt2File.canExecute()) {
 			aapt2File.setReadable(true, false);
@@ -415,6 +424,15 @@ public class AaptServiceArgs {
 		}
 		catch (Throwable e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static int parseInt(String parseInt, int defaultValue){
+		try {
+			return Integer.parseInt(parseInt);
+		}
+		catch (NumberFormatException e) {
+			return defaultValue;
 		}
 	}
 

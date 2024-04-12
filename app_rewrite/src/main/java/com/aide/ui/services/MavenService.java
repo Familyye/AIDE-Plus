@@ -3,6 +3,7 @@
 //
 package com.aide.ui.services;
 
+import androidx.annotation.Keep;
 import com.aide.common.AppLog;
 import com.aide.ui.App;
 import com.aide.ui.AppPreferences;
@@ -19,31 +20,282 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.aide.ui.util.PomXml.ArtifactNode;
+import org.apache.maven.model.Exclusion;
+import java.util.Set;
+import io.github.zeroaicy.util.Log;
 
 public class MavenService {
-    private Map<String, BuildGradle.MavenDependency> dependencyMap;
-    private Map<BuildGradle.MavenDependency, String> dependencyPathMap;
-    public MavenService() {
+	// 返回 未下载的依赖
+    public List<BuildGradle.MavenDependency> getNoDownloadDeps(Map<String, String> flatRepoPathMap, BuildGradle.MavenDependency dep) {
         try {
-            this.dependencyPathMap = new HashMap<>();
-            this.dependencyMap = new HashMap<>();
+            List<BuildGradle.MavenDependency> noDownloadDeps = new ArrayList<>();
+			ArtifactNode artifactNode = PomXml.ArtifactNode.pack(dep);
+            yS(flatRepoPathMap, artifactNode, noDownloadDeps, 3);
+
+            return noDownloadDeps;
         }
 		catch (Throwable th) {
             throw new Error(th);
         }
     }
 
-    public static String DW() {
-        return getDefaulRepositoriePath();
+
+
+	/**
+	 * 共有api
+	 */
+	// getMetadataUrl
+	@Deprecated
+    public static String rN(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
+        try {
+            return getMetadataUrl(remoteRepository, dependency);
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
     }
+	public static String getMetadataUrl(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
+        try {
+            return remoteRepository.repositorieURL + ("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/maven-metadata.xml";
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+	// getMetadataPath[返回metadata文件]
+	@Deprecated
+    public static String lg(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
+        try {
+            return getMetadataPath(remoteRepository, dependency);
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+	public static String getMetadataPath(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
+        try {
+			// getDefaulRepositoriePath应该叫默认下载maven缓存路径
+            return getDefaulRepositoriePath() + ("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/maven-metadata.xml";
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+
+	// 刷新
+    public void refresh() {
+        try {
+            App.sy(App.gn(), "Refreshing...", new MavenService$a(this), new MavenService$b(this));
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	//重置当前服务的依赖记录
+	public void resetDepMap() {
+        try {
+            this.depMap.clear();
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	/**
+	 * 静态方法
+	 */
+	public static String getArtifactUrl(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency, String version, String type) {
+        try {
+            return remoteRepository.repositorieURL + (("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/" + version + "/" + dependency.artifactId + "-" + version) + type;
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	public static String getArtifactPath(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency, String version, String type) {
+        try {
+            return getDefaulRepositoriePath() + (("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/" + version + "/" + dependency.artifactId + "-" + version) + type;
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	/**
+	 * 底包引用的API
+	 */
+
+	// 返回 未下载的依赖
+	@Deprecated
+    public List<BuildGradle.MavenDependency> er(Map<String, String> flatRepoPathMap, BuildGradle.MavenDependency dependency) {
+        try {
+			return getNoDownloadDeps(flatRepoPathMap, dependency);
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+	/**
+	 * 重置依赖
+	 */
+	@Deprecated
+    @Keep
+	public void ei() {
+        try {
+            resetDepMap();
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+	// 重置依赖在maven缓存路径中的映射
+	@Deprecated
+    @Keep
+	public void FH() {
+        try {
+            resetDepPathMap();
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	// FH() -> resetDepPathMap
+	@Keep
+	public void resetDepPathMap() {
+        try {
+            this.depPathMap.clear();
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	// 所有gradle文件中显示声明的依赖
+	// 按照依赖顺序，依次传入
+	// 这意味着，可以获得所有显示依赖
+	// 解析MavenDependency的子依赖
+	@Deprecated
+	@Keep
+	public void v5(BuildGradle.MavenDependency dependency) {
+        try {
+			//解析并填充此依赖
+            Zo(dependency, 3);
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	/**
+	 * 返回此依赖及其子依赖在maven缓存仓库中的路径
+	 * 编译时的依赖解析
+	 */
+	@Deprecated
+	@Keep
+	public List<String> J8(Map<String, String> flatRepositoryPathMap, BuildGradle.MavenDependency dep) {
+        try {
+            return Ws(flatRepositoryPathMap, getDepPath(flatRepositoryPathMap, makeDep(dep)));
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+	public List<String> J8_2(Map<String, String> flatRepositoryPathMap, BuildGradle.MavenDependency dependency) {
+        try {
+			List<String> dep = new ArrayList<>();
+
+            return Ws(flatRepositoryPathMap, getDepPath(flatRepositoryPathMap, makeDep(dependency)));
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+	/**
+	 * 返回当前依赖的maven缓存路径
+	 * 但不会查找flatDir
+	 */
+	@Deprecated
+	@Keep
+	public String u7(BuildGradle.MavenDependency dependency) {
+        try {
+            return getDepPath(null, dependency);
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	/**
+	 * 从给定的依赖路径，返回其自己及子依赖路径
+	 * 递归3层
+	 */
+	@Deprecated
+	@Keep
+	public List<String> J0(String depPath) {
+        try {
+            return Ws(null, depPath);
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+
+
+	/**
+	 * 此依赖是否存在本地缓存
+	 */
+	@Deprecated
+	@Keep
+	public boolean BT(Map<String, String> map, BuildGradle.MavenDependency dependency) {
+        try {
+            return getDepPath(map, makeDep(dependency)) != null;
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+	/**
+	 * 私有，内部实现
+	 */
+    private Map<String, PomXml.ArtifactNode> depMap;
+
+	// 依赖与此依赖本地仓库地址
+    private Map<BuildGradle.MavenDependency, String> depPathMap;
+	
+    public MavenService() {
+        try {
+            this.depPathMap = new HashMap<>();
+            this.depMap = new HashMap<>();
+        }
+		catch (Throwable th) {
+            throw new Error(th);
+        }
+    }
+
+	/**
+	 * 返回此依赖的 jar(jar) | aar(aar) | pom(bom) 文件路径
+	 */
 	//计算缓存路径
 	private String getArtifactCachePath(String repositoriePath, String groupId, String artifactId, String version, String packaging) {
         String artifactIdDir = repositoriePath + "/" + groupId.replace(".", "/") + "/" + artifactId;
 
-        if (!FileSystem.isDirectory(artifactIdDir) 
-			|| (version = getSearchVersion(artifactIdDir, version)) == null) {
+		if (!FileSystem.isDirectory(artifactIdDir)) {
+			return null;
+		}
+		//搜索本地仓库已有的版本
+		//按道理不应该这样
+        String searchVersion = this.searchLocalDepVersion(artifactIdDir, version);
+		if (searchVersion == null) {
             return null;
         }
+
+		version = searchVersion;
 
         String artifactIdVersionDir = artifactIdDir + "/" + version + "/" + artifactId + "-" + version;
 		if ("pom".equals(packaging)) {
@@ -61,25 +313,30 @@ public class MavenService {
             return artifactIdVersionDir + ".exploded.aar";
         }
         if (new File(artifactIdVersionDir + ".aar").isFile()) {
-            VH(artifactIdVersionDir + ".aar", artifactIdVersionDir + ".exploded.aar");
+            extractedAar(artifactIdVersionDir + ".aar", artifactIdVersionDir + ".exploded.aar");
             return artifactIdVersionDir + ".exploded.aar";
         }
         return null;
     }
 
 
-	//复用缓存
-    private BuildGradle.MavenDependency Hw(BuildGradle.MavenDependency dpendency) {
+	// 查询是否已有依赖或者版本控制
+	// 即所有依赖引用都在这，方便更新版本
+    private PomXml.ArtifactNode makeDep(BuildGradle.MavenDependency dep) {
         try {
-            if (!this.dependencyMap.containsKey(dpendency.getGroupIdArtifactId())) {
-                this.dependencyMap.put(dpendency.getGroupIdArtifactId(), dpendency);
+
+            PomXml.ArtifactNode cache = this.depMap.get(dep.getGroupIdArtifactId());
+			if (cache == null) {
+				cache = PomXml.ArtifactNode.pack(dep);
+				this.depMap.put(dep.getGroupIdArtifactId(), cache);
             }
-            return this.dependencyMap.get(dpendency.getGroupIdArtifactId());
+			return cache;
         }
 		catch (Throwable th) {
             throw new Error(th);
         }
     }
+
 
     private boolean P8(String str, String str2) {
         try {
@@ -103,46 +360,62 @@ public class MavenService {
         }
     }
 
-    private void QX(Map<String, String> map, String str, List<String> list, int depth) {
+
+    private void QX(Map<String, String> flatRepositoryPathMap, String str, List<String> depPaths, int depth) {
         try {
-            if (list.contains(str)) {
+            if (depPaths.contains(str)) {
                 return;
             }
-            list.add(str);
-            if (depth > 0) {
-                PomXml configuration = PomXml.empty.getConfiguration(getDependencyPomPath(str));
-				for (BuildGradle.MavenDependency dependency : configuration.dependencyManagements) {
-					// dependencyManagement只做版本控制
-					BuildGradle.MavenDependency cache = Hw(dependency);
-					if (dependency != cache) {
-						//控制版本里的更新
-						if (MavenDependencyVersion.compareTo(dependency.version, cache.version) > 0) {
-							this.dependencyMap.put(dependency.getGroupIdArtifactId(), dependency);
-						}
+            depPaths.add(str);
+			if (depth < 1) {
+				return;
+			}
 
+			String depPomPath = getDepPomPath(str);
+
+			PomXml curPomXml = PomXml.empty.getConfiguration(depPomPath);
+			
+			for (PomXml.ArtifactNode artifactNode : curPomXml.depManages) {
+				// dependencyManagement只做版本控制
+				PomXml.ArtifactNode cache = makeDep(artifactNode);
+				if (artifactNode != cache) {
+					//控制版本里的更新
+					if (MavenDependencyVersion.compareTo(artifactNode.version, cache.version) > 0) {
+						this.depMap.put(artifactNode.getGroupIdArtifactId(), artifactNode);
 					}
 				}
-				String dependencyPath;
-				for (BuildGradle.MavenDependency dependency : configuration.dependencies) {
-                    if (!vy(dependency) && (dependencyPath = we(map, Hw(dependency))) != null) {
-                        QX(map, dependencyPath, list, depth - 1);
-                    }
-                }
-            }
+			}
+			PomXml.ArtifactNode curArtifactNode = makeDep(new PomXml.ArtifactNode(curPomXml));
+			Set<String> exclusionSet = curArtifactNode.getExclusionSet();
+			
+			for (PomXml.ArtifactNode subArtifactNode : curPomXml.deps) {
+				if (exclusionSet.contains(subArtifactNode.getGroupIdArtifactId())) {
+					continue;
+				}
+				// 不知道为什么要这个
+				if (vy(subArtifactNode)) {
+					continue;
+				}
+				// 计算dependency的地址
+				String depPath = getDepPath(flatRepositoryPathMap, makeDep(subArtifactNode));
+				if (depPath != null) {
+					QX(flatRepositoryPathMap, depPath, depPaths, depth - 1);
+				}
+			}
         }
 		catch (Throwable th) {
             throw new Error(th);
         }
     }
 
-    private void VH(String str, String str2) {
+    private void extractedAar(String aarPath, String outDir) {
         try {
-            if (P8(str, str2)) {
+            if (P8(aarPath, outDir)) {
                 return;
             }
             try {
-                FileSystem.u7(new FileInputStream(str), str2, true);
-                AppLog.DW("Extracted AAR " + str);
+                FileSystem.u7(new FileInputStream(aarPath), outDir, true);
+                AppLog.DW("Extracted AAR " + aarPath);
             }
 			catch (IOException e) {
                 e.printStackTrace();
@@ -153,11 +426,14 @@ public class MavenService {
         }
     }
 
-    private List<String> Ws(Map<String, String> map, String str) {
+	/**
+	 * 编译时
+	 */
+    private List<String> Ws(Map<String, String> flatRepositoryPathMap, String depPath) {
         try {
             ArrayList<String> arrayList = new ArrayList<>();
-            if (str != null) {
-                QX(map, str, arrayList, 3);
+            if (depPath != null) {
+                QX(flatRepositoryPathMap, depPath, arrayList, 3);
             }
             return arrayList;
         }
@@ -166,46 +442,67 @@ public class MavenService {
         }
     }
 
-	//递归解析dependency的子依赖
-    private void Zo(BuildGradle.MavenDependency dependency, int depth) {
+	// 解析gradle中的显示声明
+	private void Zo(BuildGradle.MavenDependency dep, int depth) {
         try {
 			//从缓存仓库计算MavenDependency依赖路径[pom|jar|aar]
-            String dependencyPath = we(null, dependency);
-            if (dependencyPath != null) {
-                String version = a8(dependencyPath);
-                if (!this.dependencyMap.containsKey(dependency.getGroupIdArtifactId()) 
-					|| MavenDependencyVersion.compareTo(version, this.dependencyMap.get(dependency.getGroupIdArtifactId()).version) > 0) {
-                    BuildGradle.MavenDependency mavenDependency = new BuildGradle.MavenDependency(dependency, version);
-					this.dependencyMap.put(dependency.getGroupIdArtifactId(), mavenDependency);
-                }
+            String depPath = getDepPath(null, dep);
+			if (depPath == null) {
+				// 没有此依赖未下载
+				return;
+			}
+			
+			// 当前依赖路径的实例版本
+			{
+				String version = getVersion(depPath);
+				
+				BuildGradle.MavenDependency cache = this.depMap.get(dep.getGroupIdArtifactId());
+				if (cache == null
+					|| MavenDependencyVersion.compareTo(version, cache.version) > 0) {
 
-                if (depth > 0) {
-                    PomXml configuration = PomXml.empty.getConfiguration(getDependencyPomPath(dependencyPath));
+					PomXml.ArtifactNode mavenDependency = new PomXml.ArtifactNode(dep, version);
+					this.depMap.put(dep.getGroupIdArtifactId(), mavenDependency);
+				}
+			}
 
-					for (BuildGradle.MavenDependency subDependency : configuration.dependencyManagements) {
-						// dependencyManagement只做版本控制
-						BuildGradle.MavenDependency cache = Hw(subDependency);
-						if (subDependency != cache) {
-							//控制版本里的更新
-							if (MavenDependencyVersion.compareTo(subDependency.version, cache.version) > 0) {
-								this.dependencyMap.put(subDependency.getGroupIdArtifactId(), subDependency);
-							}
-						}
+
+			if (depth < 1) {
+				return;
+			}
+			String depPomPath = getDepPomPath(depPath);
+			PomXml curPomXml = PomXml.empty.getConfiguration(depPomPath);
+			
+			
+			for (PomXml.ArtifactNode subArtifactNode : curPomXml.depManages) {
+				// dependencyManagement只做版本控制
+				PomXml.ArtifactNode cache = makeDep(subArtifactNode);
+				if (subArtifactNode != cache) {
+					//控制版本里的更新
+					if (MavenDependencyVersion.compareTo(subArtifactNode.version, cache.version) > 0) {
+						this.depMap.put(subArtifactNode.getGroupIdArtifactId(), subArtifactNode);
 					}
-					for (BuildGradle.MavenDependency subDependency : configuration.dependencies) {
-                        if (!vy(subDependency)) {
-                            Zo(subDependency, depth - 1);
-                        }
-                    }
-                }
-            }
+				}
+			}
+			
+			PomXml.ArtifactNode curArtifactNode = makeDep(new PomXml.ArtifactNode(curPomXml));
+			Set<String> exclusionSet = curArtifactNode.getExclusionSet();
+			
+			for (PomXml.ArtifactNode subArtifactNode : curPomXml.deps) {
+				if (exclusionSet.contains(subArtifactNode.getGroupIdArtifactId())) {
+					continue;
+				}
+				if (!vy(subArtifactNode)) {
+					Zo(subArtifactNode, depth - 1);
+				}
+			}
+
         }
 		catch (Throwable th) {
             throw new Error(th);
         }
-    }
+    }    
 	//获取此依赖缓存路径的版本
-    private static String a8(String str) {
+    private static String getVersion(String str) {
         try {
             String[] split = str.split("/");
             return split[split.length - 2];
@@ -218,7 +515,7 @@ public class MavenService {
 
 
 	//从 jar|aar依赖路径返回pom路径
-    private String getDependencyPomPath(String str) {
+    private String getDepPomPath(String str) {
         try {
             if (str.endsWith(".exploded.aar")) {
                 return str.substring(0, str.length() - 13) + ".pom";
@@ -230,7 +527,11 @@ public class MavenService {
         }
     }
 
-    private static String getDefaulRepositoriePath() {
+	/**
+	 * 默认下载maven仓库路径
+	 */
+	// DW() -> getDefaulRepositoriePath
+    public static String getDefaulRepositoriePath() {
         String userM2Repositories = ZeroAicyExtensionInterface.getUserM2Repositories();
         if (userM2Repositories != null) {
             return userM2Repositories;
@@ -245,10 +546,10 @@ public class MavenService {
 
     private String getMavenDependencyPath(BuildGradle.MavenDependency dependency) {
         try {
-            for (String str : getRepositoriePaths()) {
-                String EQ = getArtifactCachePath(str, dependency.groupId, dependency.artifactId, dependency.version, dependency.packaging);
-                if (EQ != null) {
-                    return EQ;
+            for (String repositoriePath : getRepositoriePaths()) {
+                String depPath = getArtifactCachePath(repositoriePath, dependency.groupId, dependency.artifactId, dependency.version, dependency.packaging);
+                if (depPath != null) {
+                    return depPath;
                 }
             }
             return null;
@@ -274,13 +575,19 @@ public class MavenService {
         }
     }
 	private static MavenMetadataXml mavenMetadataXml = new MavenMetadataXml();
-    private String getSearchVersion(String artifactIdDir, String searchVersion) {
+
+    private String searchLocalDepVersion(String artifactIdDir, String searchVersion) {
         try {
             String metadataPath = artifactIdDir + "/maven-metadata.xml";
+
+
+
 			String version;
 			if (!FileSystem.isFileAndNotZip(metadataPath) 
 				|| (version = mavenMetadataXml.getConfiguration(metadataPath).getVersion(searchVersion)) == null) {
                 try {
+					//一但metadata找不到查找的版本
+					//则 ls metadata同级目录
 					//本地所有版本集合
                     ArrayList<String> versions = new ArrayList<>();
                     for (String artifactIdVersionDir : FileSystem.we(artifactIdDir)) {
@@ -343,7 +650,10 @@ public class MavenService {
         }
     }
 
-    private String we(Map<String, String> flatRepoPathMap, BuildGradle.MavenDependency dependency) {
+	/**
+	 * 计算依赖在maven缓存的路径
+	 */
+    private String getDepPath(Map<String, String> flatRepoPathMap, BuildGradle.MavenDependency dependency) {
         try {
             if (flatRepoPathMap != null) {
                 for (String flatRepositoryPath : flatRepoPathMap.keySet()) {
@@ -353,24 +663,24 @@ public class MavenService {
                         String flatRepoCachePath = flatRepoPathMap.get(flatRepositoryPath);
 						String explodedAarPath = flatRepoCachePath + "/" + name.substring(0, name.length() - 4) + ".exploded.aar";
                         //提取aar并解压
-						VH(flatArtifactPath, explodedAarPath);
+						extractedAar(flatArtifactPath, explodedAarPath);
                         return explodedAarPath;
                     }
                 }
             }
 
-            if (this.dependencyPathMap.containsKey(dependency)) {
-                String str3 = this.dependencyPathMap.get(dependency);
-                if (str3.length() == 0) {
+            if (this.depPathMap.containsKey(dependency)) {
+                String depPath = this.depPathMap.get(dependency);
+                if (depPath.length() == 0) {
                     return null;
                 }
-                return str3;
+                return depPath;
             }
             String dependencyPath = getMavenDependencyPath(dependency);
             if (dependencyPath == null) {
-                this.dependencyPathMap.put(dependency, "");
+                this.depPathMap.put(dependency, "");
             } else {
-                this.dependencyPathMap.put(dependency, dependencyPath);
+                this.depPathMap.put(dependency, dependencyPath);
             }
             return dependencyPath;
         }
@@ -380,29 +690,39 @@ public class MavenService {
     }
 
 	// 递归查找依赖缓存，不存在时加入list
-    private void yS(Map<String, String> flatRepoPathMap, BuildGradle.MavenDependency dependency, List<BuildGradle.MavenDependency> dependencyList, int depth) {
+    private void yS(Map<String, String> flatRepoPathMap, PomXml.ArtifactNode dependency, List<BuildGradle.MavenDependency> dependencyList, int depth) {
         try {
 			//从缓存仓库计算MavenDependency依赖路径[pom|jar|aar]
-            String dependencyPath = we(flatRepoPathMap, Hw(dependency));
+            String dependencyPath = getDepPath(flatRepoPathMap, makeDep(dependency));
 
 			if (dependencyPath == null) {
                 dependencyList.add(dependency);
 			} else if (depth > 0) {
-                PomXml curPomXml = PomXml.empty.getConfiguration(getDependencyPomPath(dependencyPath));
-				for (BuildGradle.MavenDependency subDependency : curPomXml.dependencyManagements) {
+                String depPomPath = getDepPomPath(dependencyPath);
+				
+				PomXml curPomXml = PomXml.empty.getConfiguration(depPomPath);
+				
+				for (PomXml.ArtifactNode subArtifactNode : curPomXml.depManages) {
 					// dependencyManagement只做版本控制
-					BuildGradle.MavenDependency cache = Hw(subDependency);
-					if (subDependency != cache) {
+					BuildGradle.MavenDependency cache = makeDep(subArtifactNode);
+
+					if (subArtifactNode != cache) {
 						//控制版本里的更新
-						if (MavenDependencyVersion.compareTo(subDependency.version, cache.version) > 0) {
-							this.dependencyMap.put(subDependency.getGroupIdArtifactId(), subDependency);
+						if (MavenDependencyVersion.compareTo(subArtifactNode.version, cache.version) > 0) {
+							this.depMap.put(subArtifactNode.getGroupIdArtifactId(), subArtifactNode);
 						}
 
 					}
 				}
-				for (BuildGradle.MavenDependency subDependency : curPomXml.dependencies) {
-                    if (!vy(subDependency)) {
-                        yS(flatRepoPathMap, subDependency, dependencyList, depth - 1);
+				PomXml.ArtifactNode curArtifactNode = makeDep(new PomXml.ArtifactNode(curPomXml));
+				Set<String> exclusionSet = curArtifactNode.getExclusionSet();
+				
+				for (PomXml.ArtifactNode subArtifactNode : curPomXml.deps) {
+					if (exclusionSet.contains(subArtifactNode.getGroupIdArtifactId())) {
+						continue;
+					}
+                    if (!vy(subArtifactNode)) {
+                        yS(flatRepoPathMap, subArtifactNode, dependencyList, depth - 1);
                     }
                 }
             }
@@ -412,223 +732,16 @@ public class MavenService {
         }
     }
 
-    public boolean BT(Map<String, String> map, BuildGradle.MavenDependency dependency) {
-        try {
-            return we(map, Hw(dependency)) != null;
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
 
 
 
-    public List<String> J0(String str) {
-        try {
-            return Ws(null, str);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-
-    public List<String> J8(Map<String, String> map, BuildGradle.MavenDependency dependency) {
-        try {
-            return Ws(map, we(map, Hw(dependency)));
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
 
 
 
-	// 返回 未下载的依赖
-	@Deprecated
-    public List<BuildGradle.MavenDependency> er(Map<String, String> flatRepoPathMap, BuildGradle.MavenDependency dependency) {
-        try {
-			return getNoDownloadDeps(flatRepoPathMap, dependency);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	//解析MavenDependency的子依赖
-    public void v5(BuildGradle.MavenDependency dependency) {
-        try {
-            Zo(dependency, 3);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	
-	// 返回 未下载的依赖
-    public List<BuildGradle.MavenDependency> getNoDownloadDeps(Map<String, String> flatRepoPathMap, BuildGradle.MavenDependency dependency) {
-        try {
-            ArrayList<BuildGradle.MavenDependency> noDownloadDeps = new ArrayList<>();
-            yS(flatRepoPathMap, dependency, noDownloadDeps, 3);
-
-            return noDownloadDeps;
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-
-    public String u7(BuildGradle.MavenDependency dependency) {
-        try {
-            return we(null, dependency);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-
-	/**
-	 * 共有api
-	 */
-	// getMetadataUrl
-	@Deprecated
-    public static String rN(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
-        try {
-            return getMetadataUrl(remoteRepository, dependency);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	public static String getMetadataUrl(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
-        try {
-            return remoteRepository.repositorieURL + ("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/maven-metadata.xml";
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	// getMetadataPath
-	@Deprecated
-    public static String lg(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
-        try {
-            return getMetadataPath(remoteRepository, dependency);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	public static String getMetadataPath(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency) {
-        try {
-			// getDefaulRepositoriePath应该叫默认下载maven缓存路径
-            return getDefaulRepositoriePath() + ("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/maven-metadata.xml";
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	// 重置路径
-	@Deprecated
-    public void FH() {
-        try {
-            resetDepPathMap();
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	public void resetDepPathMap() {
-        try {
-            this.dependencyPathMap.clear();
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-
-	@Deprecated
-    public void ei() {
-        try {
-            resetDepMap();
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	public void resetDepMap() {
-        try {
-            this.dependencyMap.clear();
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
 
 
-	//Refreshing
-    @Deprecated
-    public void nw() {
-        try {
-			refresh();
-		}
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-    public void refresh() {
-        try {
-            App.sy(App.gn(), "Refreshing...", new MavenService$a(this), new MavenService$b(this));
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	// getArtifactUrl
-	@Deprecated
-    public static String aM(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency, String version, String type) {
-        try {
-            return getArtifactUrl(remoteRepository, dependency, version, type);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	public static String getArtifactUrl(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency, String version, String type) {
-        try {
-            return remoteRepository.repositorieURL + (("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/" + version + "/" + dependency.artifactId + "-" + version) + type;
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	// getArtifactPath
-	@Deprecated
-    public static String XL(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency, String version, String type) {
-        try {
-            return getArtifactPath(remoteRepository, dependency, version, type);
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
-	public static String getArtifactPath(BuildGradle.RemoteRepository remoteRepository, BuildGradle.MavenDependency dependency, String version, String type) {
-        try {
-            return getDefaulRepositoriePath() + (("/" + dependency.groupId.replace('.', '/') + "/" + dependency.artifactId) + "/" + version + "/" + dependency.artifactId + "-" + version) + type;
-        }
-		catch (Throwable th) {
-            throw new Error(th);
-        }
-    }
 
 
-	//getDepPathMap
-	@Deprecated
-    public static Map<BuildGradle.MavenDependency, String> j6(MavenService mavenService) {
-        return mavenService.dependencyPathMap;
-    }
-
-	//getDepPathMap
-    public static Map<BuildGradle.MavenDependency, String> getDepPathMap(MavenService mavenService) {
-        return mavenService.dependencyPathMap;
-    }
 
 }
 

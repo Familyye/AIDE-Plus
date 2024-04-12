@@ -10,12 +10,29 @@ import io.github.zeroaicy.aide.preference.ZeroAicySetting;
 public class ThemedActionbarActivity extends Activity {
 
 
+    public static void onCreate2(ThemedActionbarActivity ThemedActionbarActivity, Bundle bundle) {
+		ThemedActionbarActivity.onCreate2(bundle);
+	}
+	
+    protected void onCreate2(Bundle bundle) {
+
+		enableFollowSystem(false);
+		super.onCreate(bundle);
+		if (ZeroAicySetting.isLightTheme()) {
+			setTheme(R.style.ActivityActionbarThemeLight);
+		}
+		else {
+			setTheme(R.style.ActivityActionbarThemeDark);
+		}
+    }
+	
     @Override
     protected void onCreate(Bundle bundle) {
 		
 		enableFollowSystem(false);
 		
 		super.onCreate(bundle);
+		
 		
 		if (ZeroAicySetting.isLightTheme()) {
 			setTheme(R.style.ActivityActionbarThemeLight);

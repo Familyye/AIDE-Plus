@@ -10,6 +10,8 @@ import com.aide.ui.build.packagingservice.ExternalPackagingService;
 import io.github.zeroaicy.aide.activity.ZeroAicyMainActivity;
 import io.github.zeroaicy.aide.preference.ZeroAicySetting;
 import io.github.zeroaicy.aide.services.ZeroAicyExternalPackagingService;
+import com.aide.ui.util.BuildGradle;
+import io.github.zeroaicy.aide.utils.ZeroAicyBuildGradle;
 
 /**
  * 1.aapt2
@@ -70,4 +72,11 @@ public class ZeroAicyExtensionInterface {
 	 public static String getUserM2Repositories(){
 		 return ZeroAicySetting.getDefaultSpString("user_m2repositories", null);
 	 }
+	 
+	/**
+	 * 替换BuildGradle解析实现
+	 */
+	public static BuildGradle getBuildGradle(){
+		return ZeroAicyBuildGradle.getSingleton();
+	}
 }

@@ -9,7 +9,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 28
         versionCode 2008210017
-        versionName "2.1.0-[3.2.210316]"
+        versionName "2.1.1.3-[3.2.210316]"
     }
 	
     productFlavors {
@@ -22,7 +22,7 @@ android {
 		}
 		"AIDE+2" {
 			applicationId "io.github.zeroaicy.aide2"
-			versionName "2.1.0-[3.2.210316]"
+			versionName "2.1.1.2-[3.2.210316]"
 		}
 		"AIDE+4" {
 			applicationId "io.github.zeroaicy.aide4"
@@ -34,7 +34,8 @@ android {
 	}
     buildTypes {
         release {
-            minifyEnabled fals
+            minifyEnabled false
+			shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

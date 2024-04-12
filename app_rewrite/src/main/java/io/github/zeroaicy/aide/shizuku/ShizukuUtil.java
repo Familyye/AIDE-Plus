@@ -84,7 +84,6 @@ public class ShizukuUtil implements Shizuku.OnBinderReceivedListener, Shizuku.On
 	private static ShizukuUtil shizukuListener;
 	//添加监听器
 	public static void initialized(Context context) {
-		
 		Log.d(TAG, "Shizuku初始化");
 		ShizukuUtil.shizukuListener = new ShizukuUtil(context);
 		//监听是否连接
@@ -94,9 +93,9 @@ public class ShizukuUtil implements Shizuku.OnBinderReceivedListener, Shizuku.On
 		//添加申请权限回调
         Shizuku.addRequestPermissionResultListener(shizukuListener);
 	}
+	
 	//移除监听器
 	public static void removeBinderListener(){
-		
 		Shizuku.removeBinderReceivedListener(shizukuListener);
         Shizuku.removeBinderDeadListener(shizukuListener);
         Shizuku.removeRequestPermissionResultListener(shizukuListener);
@@ -174,6 +173,7 @@ public class ShizukuUtil implements Shizuku.OnBinderReceivedListener, Shizuku.On
 			Thread.sleep(100);
 
             final Intent[] results = new Intent[]{null};
+			
             final CountDownLatch countDownLatch = new CountDownLatch(1);
             IntentSender intentSender = newInstance(new IIntentSenderAdaptor() {
 					@Override

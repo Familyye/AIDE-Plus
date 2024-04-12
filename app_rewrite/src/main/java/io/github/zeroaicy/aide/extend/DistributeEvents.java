@@ -36,9 +36,9 @@ public class DistributeEvents {
 			|| !ZeroAicySetting.isShizukuInstaller() ) {
 			return customInstaler(appPath);
 		}
-		
+		// 需要用 子线程安装
 		if (ZeroAicySetting.isShizukuInstaller()) {
-			App.aj(new InstalApkFromShizuku(appPath));
+			new Thread(new InstalApkFromShizuku(appPath)).start();
 			//拦截默认安装流程
 			return true;
 		}

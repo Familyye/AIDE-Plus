@@ -1,4 +1,6 @@
 package io.github.zeroaicy.aide.aapt2;
+
+
 import android.text.TextUtils;
 import com.aide.ui.build.android.AaptService$b;
 import com.aide.ui.util.FileSystem;
@@ -29,13 +31,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Aapt2TaskFromZeroAicy {
-	public static final byte[] emptyZipBytes = new byte[]{0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-	public static boolean hasError(AaptService$b aaptService$b) {
-		return aaptService$b != null && aaptService$b.DW != null;
-	}
+
+//	public static boolean hasError(AaptService$b aaptService$b) {
+//		return aaptService$b != null && aaptService$b.DW != null;
+//	}
+
 	private static final String TAG = "aapt2";
 
 
@@ -95,15 +96,21 @@ public class Aapt2TaskFromZeroAicy {
 			}
 		}
 		long currentTimeMillis = System.currentTimeMillis();
+
 		// 增量 -link
 		AaptService$b linkError = incrementalLink(aaptServiceArgs);
 		aaptServiceArgs.log.println("aapt2 call link " + (System.currentTimeMillis() - currentTimeMillis) + "ms");
 		if (linkError != null) {
 			return linkError;
 		}
-
+		AaptService$b optimizeError = incrementalOptimize(aaptServiceArgs);
+		aaptServiceArgs.log.println("aapt2 call optimize " + (System.currentTimeMillis() - currentTimeMillis) + "ms");
+		if (optimizeError != null) {
+			return optimizeError;
+		}
 		//删除无效缓存
 		deleteCache(aaptServiceArgs);
+
 
 		//需要将主项目R.java复制到主项目gen--以不同的包名
 		long genRjavaTimeMillis = System.currentTimeMillis();
@@ -134,6 +141,39 @@ public class Aapt2TaskFromZeroAicy {
 		aaptServiceArgs.generateBuildConfigJava();
 
 		return new AaptService$b(false);
+	}
+
+	private static AaptService$b incrementalOptimize(AaptServiceArgs aaptServiceArgs) {
+		if (aaptServiceArgs.shrinkResources) {
+			File resourcesApFile = new File(aaptServiceArgs.resourcesApPath);
+			String resourcesAp_Dir = resourcesApFile.getParent();
+			File resourcesOptimizeApFile = new File(resourcesAp_Dir, "resources_optimize.ap_");
+			if (resourcesOptimizeApFile.lastModified() <= resourcesApFile.lastModified()) {
+				String resourcesOptimizeApPath = resourcesOptimizeApFile.getAbsolutePath();
+				List<String> args = new ArrayList<>();
+
+				args.add(aaptServiceArgs.getAapt2Path());
+				args.add("optimize");
+				args.add("-o");
+				args.add(resourcesOptimizeApPath);
+
+				args.add("--collapse-resource-names");
+				args.add("--shorten-resource-paths");
+
+				args.add(aaptServiceArgs.resourcesApPath);
+				abcd.wf j62 = abcd.xf.j6(args, null, null, true, null, null);
+
+				if (j62.DW() != 0) {
+					String s = aaptServiceArgs.getAapt2Error(j62);
+					aaptServiceArgs.log.println("aapt2 错误: -> " + s);
+					if (s != null) {
+						return new AaptService$b(s);
+					}
+				}
+
+			}
+		}
+		return null;
 	}
 
 	private static void generateRjava(AaptServiceArgs aaptServiceArgs) throws IOException {
@@ -190,7 +230,6 @@ public class Aapt2TaskFromZeroAicy {
 			String subRJavaAbsolutePath = subPackageName.replace('.', '/') + "/R.java";
 
 			String subRtxtPath = getRtxtFile(aaptServiceArgs, subGenDirPath);
-
 			// R怎么只包含自己的资源呢🤔🤔🤔🤔
 			// 根据R.txt生成
 			if (subRtxtPath == null) {
@@ -210,27 +249,29 @@ public class Aapt2TaskFromZeroAicy {
 					subRJavaFile.getParentFile().mkdirs();
 					AaptServiceArgs.writeLines(subRJavaFile, rJavaLinelist);
 				}
-				continue;
-			}
 
-			Symbols subSymbols = 
-				subRtxtPath.length()  == 0 
-				? symbolParser.emptySymbols : symbolParser.parse(subRtxtPath);
+			} else {
+				Symbols subSymbols = 
+					subRtxtPath.length()  == 0 
+					? symbolParser.emptySymbols : symbolParser.parse(subRtxtPath);
 
-			//同步
-			for (Symbols.Entry subEntry : subSymbols.entries()) {
-				Symbols.Entry mainEntry = mainSymbols.getEntry(subEntry.key);
-				if (mainEntry != null) {
-					subSymbols.put(mainEntry);				
+				//同步
+				for (Symbols.Entry subEntry : subSymbols.entries()) {
+					Symbols.Entry mainEntry = mainSymbols.getEntry(subEntry.key);
+					if (mainEntry != null) {
+						subSymbols.put(mainEntry);				
+					}
+				}
+				//向主项目gen目录写入，aar子项目不需要
+				File subRJavaFile = new File(mainProjectGenDir, subRJavaAbsolutePath);
+				if (!subRJavaFile.exists() || subRJavaFile.lastModified() < resourcesApLastModified) {
+					subRJavaFile.getParentFile().mkdirs();
+					//跳过此R生成
+					Aapt.generateR(subRJavaFile, subPackageName, subSymbols);
 				}
 			}
-			//向主项目gen目录写入，aar子项目不需要
-			File subRJavaFile = new File(mainProjectGenDir, subRJavaAbsolutePath);
-			if (!subRJavaFile.exists() || subRJavaFile.lastModified() < resourcesApLastModified) {
-				subRJavaFile.getParentFile().mkdirs();
-				//跳过此R生成
-				Aapt.generateR(subRJavaFile, subPackageName, subSymbols);
-			}
+
+
 		}
 	}
 
@@ -346,7 +387,7 @@ public class Aapt2TaskFromZeroAicy {
 		String flatDir = getAapt2ResCacheDir(aaptServiceArgs, resDir);
 		//flat文件路径
 		File flatDirFile = new File(flatDir);
-		
+
 		//记录使用的flat缓存目录，用于输出无用缓存
 		aaptServiceArgs.flatDirSet.add(flatDir);
 
@@ -427,32 +468,29 @@ public class Aapt2TaskFromZeroAicy {
 
 		//加入链接列表
 		aaptServiceArgs.flatZipFileSet.add(flatsZipFile);
-		
+
 		return null;
 	}
 
 	public static String getRtxtFile(AaptServiceArgs aaptServiceArgs, String subGenDirPath) {
-		String injectedAndroidManifestXml = aaptServiceArgs.injectedAManifestMap.get(subGenDirPath);
-		if (injectedAndroidManifestXml == null) {
-			return null;
-		}
-
-		String parent = FileSystem.getParent(injectedAndroidManifestXml);
-		parent = parent.substring(0, parent.length() - "/bin/injected".length());
-
-		if (parent.endsWith(".aar/bin/injected")) {
+		String rTxtPath = subGenDirPath;
+		if (rTxtPath.endsWith(".aar/gen")) {
+			rTxtPath = rTxtPath.substring(0, rTxtPath.length() - "/gen".length());
 			//aar库
-			File rTxtFile = new File(parent, "R.txt");
+			File rTxtFile = new File(rTxtPath, "R.txt");
 			if (rTxtFile.exists()) {
 				return rTxtFile.getAbsolutePath();
 			}
 			return "";
 		}
-		//子项目
-		parent = FileSystem.getParent(parent);
-		File rTxtFile = new File(parent, "R.txt");
-		if (rTxtFile.exists()) {
-			return rTxtFile.getAbsolutePath();
+
+		if (rTxtPath.endsWith("/build/gen")) {
+			//子项目
+			rTxtPath = rTxtPath.substring(0, rTxtPath.length() - "/build/gen".length());
+			File rTxtFile = new File(rTxtPath, "R.txt");
+			if (rTxtFile.exists()) {
+				return rTxtFile.getAbsolutePath();
+			}
 		}
 		return null;
 	}
@@ -467,21 +505,8 @@ public class Aapt2TaskFromZeroAicy {
 
 		AndroidManifestParser androidManifestRead = AndroidManifestParser.get(androidManifestXml);
 
-		final int min;
-		try {
-			min = Integer.parseInt(androidManifestRead.getMinSdkVersion());
-		}
-		catch (Throwable e) {
-			min = aaptServiceArgs.defaultMinSdk;
-		}
-
-		final int target;
-		try {
-			target = Integer.parseInt(androidManifestRead.getTargetSdkVersion());
-		}
-		catch (Throwable e) {
-			target = aaptServiceArgs.defaultTargetSdk;
-		}
+		int min = AaptServiceArgs.parseInt(androidManifestRead.getMinSdkVersion(), aaptServiceArgs.defaultMinSdk);
+		int target = AaptServiceArgs.parseInt(androidManifestRead.getTargetSdkVersion(), aaptServiceArgs.defaultTargetSdk);
 
 		/*****/
 		List<String> args = new ArrayList<>();
@@ -494,6 +519,7 @@ public class Aapt2TaskFromZeroAicy {
 		args.add("--no-version-vectors");
 		args.add("--no-version-transitions");
 		args.add("--auto-add-overlay");
+
 		if (min <= 0) {
 			min = 21;
 		}
@@ -593,15 +619,16 @@ public class Aapt2TaskFromZeroAicy {
 	 */
 	private static String getAndroidManifestXml(AaptServiceArgs aaptServiceArgs, String subProjectGen) throws RuntimeException {
 		String manifestXml = aaptServiceArgs.mergedAManifestMap.get(subProjectGen);
-		if (FileSystem.exists(manifestXml)) {
+
+		if (manifestXml != null && FileSystem.exists(manifestXml)) {
 			return manifestXml;
 		}
 		manifestXml = aaptServiceArgs.injectedAManifestMap.get(subProjectGen);
-		if (FileSystem.exists(manifestXml)) {
+		if (manifestXml != null && FileSystem.exists(manifestXml)) {
 			return manifestXml;
 		}
 		manifestXml = aaptServiceArgs.aManifestMap.get(manifestXml);
-		if (FileSystem.exists(manifestXml)) {
+		if (manifestXml != null && FileSystem.exists(manifestXml)) {
 			return manifestXml;
 		}
 		aaptServiceArgs.log.println("没有AndroidManifest文件玩尼玛\n");

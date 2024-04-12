@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.sdklite.aapt.Internal.Filter;
 
-import android.util.TypedValue;
 
 /**
  * Represents Android binary XML resource
