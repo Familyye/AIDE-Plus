@@ -120,6 +120,8 @@ import static com.android.aaptcompiler.AaptResourceType.BOOL;
 import static com.android.aaptcompiler.AaptResourceType.DIMEN;
 import static com.android.aaptcompiler.AaptResourceType.STYLEABLE;
 import static io.github.zeroaicy.aide.aaptcompiler.ResourceUtilsKt.PCK_ANDROID;
+import java.security.PermissionCollection;
+import com.android.aaptcompiler.Value;
 
 
 public class XmlCompletionUtils {
@@ -271,8 +273,8 @@ public class XmlCompletionUtils {
 				// 已initAndroidSDK
 				return;
 			}
-            var now = System.currentTimeMillis();
-			
+			long now = System.currentTimeMillis();
+
             File platformDir = getPlatformDir();
 			
 			// data,zip 根目录是 data
@@ -435,7 +437,7 @@ public class XmlCompletionUtils {
             if (tables.isEmpty()) {
                 continue;
             }
-            var namespace = entry.getValue();
+			String namespace = entry.getValue();
             String pck = namespace.contains(SdkConstants.URI_PREFIX)
 				? namespace.substring(namespace.indexOf(SdkConstants.URI_PREFIX) + SdkConstants.URI_PREFIX.length())
 				: namespace;
@@ -511,7 +513,7 @@ public class XmlCompletionUtils {
                     model.codeCompleterCallback.listElementKeywordFound(category);
                 }
             } else if (parent.equals("uses-permission")) {
-                for (var permission : Permission.values()) {
+                for (Permission permission : Permission.values()) {
                     model.codeCompleterCallback.listElementKeywordFound(permission.getConstant());
                 }
             } else if (parent.equals("uses-feature")) {
@@ -540,9 +542,9 @@ public class XmlCompletionUtils {
             namespace = SdkConstants.TOOLS_URI;
         }
 
-        var tables = findResourceTables(namespace);
+        Set<ResourceTable> tables = findResourceTables(namespace);
 
-        var attr = findAttr(tables, namespace, ns, text);
+        AttributeResource attr = findAttr(tables, namespace, ns, text);
 
         if (!prefix.startsWith("@")
 			&& attr != null) {
@@ -689,9 +691,10 @@ public class XmlCompletionUtils {
 
             ResourceConfigValue resourceItem = attrEntry != null
 				? attrEntry.findValue(new ConfigDescription(), "")
-				: null;
-            var _attrEntry = resourceItem != null ? resourceItem.getValue() : null;
-            if (_attrEntry instanceof AttributeResource) {
+			: null;
+			Value _attrEntry = resourceItem != null ? resourceItem.getValue() : null;
+            if (_attrEntry instanceof AttributeResource)
+				{
                 return (AttributeResource) _attrEntry;
             } else {
                 return null;
@@ -699,14 +702,14 @@ public class XmlCompletionUtils {
         }
 
         if (namespace.equals(SdkConstants.AUTO_URI)) {
-            var allPackages = new ArrayList<ResourceTablePackage>();
-            for (ResourceTable table : tables) {
+			ArrayList<ResourceTablePackage> allPackages = new ArrayList<ResourceTablePackage>();
+            for (ResourceTable table : tables){
                 allPackages.addAll(table.getPackages());
             }
             return findAttr(allPackages, attr);
         } else {
-            var filteredPackages = new ArrayList<ResourceTablePackage>();
-            for (ResourceTable table : tables) {
+			ArrayList<ResourceTablePackage> filteredPackages = new ArrayList<ResourceTablePackage>();
+            for (ResourceTable table : tables){
                 ResourceTablePackage foundPackage = table.findPackage(pck);
                 if (foundPackage != null) {
                     filteredPackages.add(foundPackage);
@@ -730,8 +733,8 @@ public class XmlCompletionUtils {
                 continue;
             }
 
-            var resourceItem = entry.findValue(new ConfigDescription(), "");
-            var _attrEntry = resourceItem != null ? resourceItem.getValue() : null;
+            ResourceConfigValue resourceItem = entry.findValue(new ConfigDescription(), "");
+			Value _attrEntry = resourceItem != null ? resourceItem.getValue() : null;
             if (_attrEntry instanceof AttributeResource) {
                 return (AttributeResource) _attrEntry;
             }
@@ -860,7 +863,7 @@ public class XmlCompletionUtils {
                     // 获取 styleable 资源
                     ResourceGroup group = pck.findGroup(type, null);
                     if (group != null) {
-                        var foundEntries = findEntries(group.getEntries$aaptcompiler_release(), null, new Predicate<String>() {
+						List<ResourceEntry> foundEntries = findEntries(group.getEntries$aaptcompiler_release(), null, new Predicate<String>() {
 								@Override
 								public boolean test(String s) {
 									return true;
@@ -921,10 +924,10 @@ public class XmlCompletionUtils {
     }
 
     public static void completionManifestTag(final Model model) {
-        var completionManifestAttrRes = ResourceUtils.getCOMPLETION_MANIFEST_ATTR_RES();
+		ResourceTable completionManifestAttrRes = ResourceUtils.getCOMPLETION_MANIFEST_ATTR_RES();
         if (completionManifestAttrRes == null)
             completionManifestAttrRes = resourceUtil.getManifestAttrTable();
-        var styleables = completionManifestAttrRes.findPackage(PCK_ANDROID)
+		ResourceGroup styleables = completionManifestAttrRes.findPackage(PCK_ANDROID)
 			.findGroup(STYLEABLE, null);
 
         if (styleables != null) {
@@ -1044,7 +1047,7 @@ public class XmlCompletionUtils {
             return Collections.emptySet();
         }
         if (SdkConstants.ANDROID_NS_NAME.equals(pck)) {
-            var completionFrameworkRes = ResourceUtils.getCOMPLETION_FRAMEWORK_RES();
+			ResourceTable completionFrameworkRes = ResourceUtils.getCOMPLETION_FRAMEWORK_RES();
             if (completionFrameworkRes == null)
                 completionFrameworkRes = resourceUtil.getFrameworkResourceTable();
             if (completionFrameworkRes == null) {

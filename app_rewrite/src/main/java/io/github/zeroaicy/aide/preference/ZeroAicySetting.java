@@ -1,19 +1,19 @@
 package io.github.zeroaicy.aide.preference;
 
-import android.annotation.Nullable;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
+import com.aide.codemodel.language.java.JavaFormatOption;
 import com.aide.ui.rewrite.R;
 import io.github.zeroaicy.aide.utils.Utils;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import com.aide.codemodel.language.java.JavaFormatOption;
 
 public class ZeroAicySetting implements SharedPreferences.OnSharedPreferenceChangeListener {
 

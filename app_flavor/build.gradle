@@ -10,7 +10,7 @@ android {
         targetSdkVersion 28
         versionCode 2008210017
 		// [3.2.210316]
-        versionName "2.3.2.7"
+        versionName "2.3.2.9"
     }
 	signingConfigs{
 		release{
@@ -33,6 +33,10 @@ android {
 			shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+	compileOptions {
+        sourceCompatibility JavaVersion.VERSION_8
+        targetCompatibility JavaVersion.VERSION_8
     }
 }
 
