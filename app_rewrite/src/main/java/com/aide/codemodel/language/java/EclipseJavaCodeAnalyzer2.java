@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
-
 	final JavaCodeModelPro javaCodeModel;
 
 	final Model model;
@@ -37,14 +36,11 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 	HashtableOfInt<ErrorTable.d> errors;
 	FileSpace fileSpace;
 
-
-
 	Map<String, List<ErrorInfo>> ecjSemanticAnalysisMap = new HashMap<>();
 	// 语义高亮信息
 	Map<String, List<HighlighterInfo>> ecjSemanticHighlighterMap = new HashMap<>();
 
-
-	public EclipseJavaCodeAnalyzer2( JavaCodeModelPro codeModel, Model model, JavaLanguage javaLanguage ) {
+	public EclipseJavaCodeAnalyzer2(JavaCodeModelPro codeModel, Model model, JavaLanguage javaLanguage) {
 		super(model, javaLanguage);
 
 		this.javaCodeModel = codeModel;
@@ -52,7 +48,7 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		this.javaLanguage = javaLanguage;
 		this.semanticParserVersionMap = new MapOfIntLong();
 
-		if ( model == null ) {
+		if (model == null) {
 			return;
 		}
 
@@ -67,18 +63,19 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		this.fileSpace = model.fileSpace;
 	}
 
-	public void fillSemanticHighlighter( FileEntry file ) {
+	public void fillSemanticHighlighter(FileEntry file) {
 		HighlighterCallback highlighterCallback = this.highlighterCallback;
-		if ( highlighterCallback == null ) {
+		if (highlighterCallback == null) {
 			return;
 		}
 		List<HighlighterInfo> highlighterInfos = this.ecjSemanticHighlighterMap.get(file.getPathString());
-		if ( highlighterInfos == null ) {
+		if (highlighterInfos == null) {
 			return;
 		}
 		// 添加 扩展(ecj)高亮信息
-		for ( HighlighterInfo highlighterInfo : highlighterInfos ) {
-			highlighterCallback.found(highlighterInfo.highlighterType, highlighterInfo.startLine, highlighterInfo.startColumn, highlighterInfo.endLine, highlighterInfo.endColumn);
+		for (HighlighterInfo highlighterInfo : highlighterInfos) {
+			highlighterCallback.found(highlighterInfo.highlighterType, highlighterInfo.startLine,
+					highlighterInfo.startColumn, highlighterInfo.endLine, highlighterInfo.endColumn);
 		}
 
 	}
@@ -86,14 +83,14 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 	/**
 	 * 查找 ProjectEnvironment
 	 */
-	private ProjectEnvironment getProjectEnvironment( FileEntry file ) {
+	private ProjectEnvironment getProjectEnvironment(FileEntry file) {
 		int assemblyId = fileSpace.getAssembly(file);
 		SparseArray<ProjectEnvironment> projectEnvironments = javaCodeModel.projectEnvironments;
-		if ( projectEnvironments == null ) {
+		if (projectEnvironments == null) {
 			return null;
 		}
 		ProjectEnvironment projectEnvironment = projectEnvironments.get(assemblyId);
-		if ( projectEnvironment == null ) {
+		if (projectEnvironment == null) {
 			return null;
 		}
 		return projectEnvironment;
@@ -102,9 +99,9 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 	/**
 	 * 强制获得resolveUnit
 	 */
-	private CompilationUnitDeclaration forceResolveUnit( FileEntry file ) {
+	private CompilationUnitDeclaration forceResolveUnit(FileEntry file) {
 		ProjectEnvironment projectEnvironment = getProjectEnvironment(file);
-		if ( projectEnvironment == null ) {
+		if (projectEnvironment == null) {
 			return null;
 		}
 		// return resolve Unit
@@ -113,23 +110,22 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 	// resolve
 	@Override
-	public void v5( SyntaxTree syntaxTree ) {
+	public void v5(SyntaxTree syntaxTree) {
 
 		// 当前文件error count
-		
+
 		// 语义分析
 		semanticAnalysis(syntaxTree);
 		// AIDE的语义分析
 	}
-	
-	
+
 	/**
 	 * 语义分析
 	 */
 	public CompilationUnitDeclaration semanticAnalysis(SyntaxTree syntaxTree) {
 		return semanticAnalysis(syntaxTree, false);
 	}
-	
+
 	/**
 	 * 可以强制语义分析
 	 */
@@ -145,6 +141,10 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 		String filePath = fileEntry.getPathString();
 
+		if (forceResolve) {
+			// 强制模式 清除上次结果
+			clearErrors(syntaxTree);
+		}
 		// 必须调用 codemodel需要符号表信息
 		List<ErrorInfo> aideSemanticAnalysis = aideSemanticAnalysis(syntaxTree);
 
@@ -154,19 +154,19 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 			// 添加 ecj 从缓存中 
 			List<ErrorInfo> ecjSemanticAnalysis = ecjSemanticAnalysisMap.get(filePath);
 			// 添加 ecjSemanticAnalysis 
-			addErrorInfo(ecjSemanticAnalysis, fileEntry, language);				
+			addErrorInfo(ecjSemanticAnalysis, fileEntry, language);
 
 			// 添加 aideSemanticAnalysis 
 			addErrorInfo(aideSemanticAnalysis, fileEntry, language);
 			return null;
 		} else {
-			
 			// 更新版本 put
 			return forceSemanticAnalysis(fileId, nowVersion, fileEntry, language, filePath, aideSemanticAnalysis);
 		}
 	}
 
-	private CompilationUnitDeclaration forceSemanticAnalysis(int fileId, long nowVersion, FileEntry fileEntry, Language language, String filePath, List<ErrorInfo> aideSemanticAnalysis) {
+	private CompilationUnitDeclaration forceSemanticAnalysis(int fileId, long nowVersion, FileEntry fileEntry,
+			Language language, String filePath, List<ErrorInfo> aideSemanticAnalysis) {
 		semanticParserVersionMap.VH(fileId, nowVersion);
 
 		// 使用 ProjectEnvironment 增量分析
@@ -183,83 +183,83 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		List<ErrorInfo> ecjSemanticAnalysis = ecjSemanticAnalysisMap.get(filePath);
 
 		// 添加 ecjSemanticAnalysis 
-		addErrorInfo(ecjSemanticAnalysis, fileEntry, language);				
+		addErrorInfo(ecjSemanticAnalysis, fileEntry, language);
 
 		// 添加 aideSemanticAnalysis 
 		addErrorInfo(aideSemanticAnalysis, fileEntry, language);
-		
+
 		return resolveUnit;
 	}
-
 
 	SimpleHighlighterASTVisitor highlighterASTVisitor = new SimpleHighlighterASTVisitor();
 	/**
 	 * 计算ecj错误 警告信息并缓存 以及 高亮信息
 	 */
-	private void ecjSemanticAnalysis( CompilationUnitDeclaration resolveUnit, FileEntry fileEntry, Language language ) {
+	private void ecjSemanticAnalysis(CompilationUnitDeclaration resolveUnit, FileEntry fileEntry, Language language) {
 		String filePath = fileEntry.getPathString();
-		
+
 		List<ErrorInfo> ecjSemanticAnalysis = ecjSemanticAnalysisMap.get(filePath);
-		if( ecjSemanticAnalysis == null ){
+		if (ecjSemanticAnalysis == null) {
 			ecjSemanticAnalysis = new ArrayList<>();
 			// 缓存ecj语义分析信息
 			this.ecjSemanticAnalysisMap.put(filePath, ecjSemanticAnalysis);
-		}else{
+		} else {
 			ecjSemanticAnalysis.clear();
 		}
-		
-		if ( resolveUnit  == null ) {
+
+		if (resolveUnit == null) {
 			return;
 		}
-		
+
 		List<HighlighterInfo> ecjSemanticHighlighter = new ArrayList<>();
 		this.ecjSemanticHighlighterMap.put(filePath, ecjSemanticHighlighter);
-		
+
 		// 可以遍历Ast，提取高亮信息
 		highlighterASTVisitor.init(resolveUnit, ecjSemanticHighlighter);
 		resolveUnit.traverse(highlighterASTVisitor, resolveUnit.scope);
-		
+
 		CompilationResult compilationResult = resolveUnit.compilationResult;
-		if( compilationResult == null ){
+		if (compilationResult == null) {
 			return;
 		}
 		CategorizedProblem[] problems = compilationResult.getAllProblems();
-		if ( problems == null ) {
+		if (problems == null) {
 			return;
 		}
 
-		for ( CategorizedProblem rawProblem : problems ) {
+		for (CategorizedProblem rawProblem : problems) {
 			DefaultProblem problem = (DefaultProblem) rawProblem;
 
-			if ( !problem.isError() && !problem.isWarning() ) {
+			if (!problem.isError() && !problem.isWarning()) {
 				continue;
 			}
 
 			int startLine = problem.getSourceLineNumber();
 			int endLine = startLine;
 			int startColumn = problem.column;
-			int endColumn = ( problem.column + problem.getSourceEnd() - problem.getSourceStart() ) + 1;
+			int endColumn = (problem.column + problem.getSourceEnd() - problem.getSourceStart()) + 1;
 
 			String msg = problem.getMessage();
 
 			// 错误 | 警告
-			int kind = problem.isError() ?
-				20 : 49;
+			int kind = problem.isError() ? 20 : 49;
 
-			ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn, msg, kind);
+			ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn, msg,
+					kind);
 			ecjSemanticAnalysis.add(errorInfo);
 
-			if ( problem.isWarning() ) {
+			if (problem.isWarning()) {
 				// 添加 
-				switch ( problem.getID() ) {
-					case IProblem.UnusedPrivateField:
-					case IProblem.LocalVariableIsNeverUsed:
-					case IProblem.ArgumentIsNeverUsed:
-					case IProblem.ExceptionParameterIsNeverUsed:
-					case IProblem.UnusedObjectAllocation:
-						ecjSemanticHighlighter.add(new HighlighterInfo(HighlighterType.UnUsed, startLine, startColumn, endLine, endColumn));
+				switch (problem.getID()) {
+					case IProblem.UnusedPrivateField :
+					case IProblem.LocalVariableIsNeverUsed :
+					case IProblem.ArgumentIsNeverUsed :
+					case IProblem.ExceptionParameterIsNeverUsed :
+					case IProblem.UnusedObjectAllocation :
+						ecjSemanticHighlighter.add(new HighlighterInfo(HighlighterType.UnUsed, startLine, startColumn,
+								endLine, endColumn));
 						break;
-					default:
+					default :
 						// this.highlighterCallback.found(HighlighterType.UnUsed, line, column, line, endColumn);
 						break;
 				}
@@ -268,7 +268,7 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 	}
 
 	// 计算AIDE 语义分析信息
-	private List<ErrorInfo> aideSemanticAnalysis( SyntaxTree syntaxTree ) {
+	private List<ErrorInfo> aideSemanticAnalysis(SyntaxTree syntaxTree) {
 		super.v5(syntaxTree);
 		//  保存AIDE语义分析的结果
 		List<ErrorInfo> allErrorInfos = getAllErrors(syntaxTree);
@@ -277,32 +277,29 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		return allErrorInfos;
 	}
 
-
-	private void addErrorInfo( List<ErrorInfo> semanticAnalysis, FileEntry fileEntry, Language language ) {
-		if ( semanticAnalysis == null ) {
+	private void addErrorInfo(List<ErrorInfo> semanticAnalysis, FileEntry fileEntry, Language language) {
+		if (semanticAnalysis == null) {
 			return;
 		}
-		for ( ErrorInfo errorInfo : semanticAnalysis ) {
+		for (ErrorInfo errorInfo : semanticAnalysis) {
 			// Hw会 put compileErrors里导致 编译器不调用
-			errorTable.lg(errorInfo.file, errorInfo.language, errorInfo.startLine, errorInfo.startColumn, errorInfo.endLine, errorInfo.endColumn, errorInfo.msg, errorInfo.kind);
+			errorTable.lg(errorInfo.file, errorInfo.language, errorInfo.startLine, errorInfo.startColumn,
+					errorInfo.endLine, errorInfo.endColumn, errorInfo.msg, errorInfo.kind);
 
 			ErrorTable.d fileEntryErrorPack = getFileEntryErrorPack(fileEntry, language);
-			if ( fileEntryErrorPack == null ) {
+			if (fileEntryErrorPack == null) {
 				continue;
 			}
 			Vector<ErrorTable.Error> analysisErrors = fileEntryErrorPack.analysisErrors;
-			if ( analysisErrors == null ) {
+			if (analysisErrors == null) {
 				continue;
 			}
 			analysisErrors.get(analysisErrors.size() - 1).fixes = errorInfo.fixes;
 		}
 	}
 
-
-
-
 	@Deprecated
-	private List<ErrorInfo> getErrorInfos( SyntaxTree syntaxTree ) {
+	private List<ErrorInfo> getErrorInfos(SyntaxTree syntaxTree) {
 		try {
 			FileEntry fileEntry = syntaxTree.getFile();
 			Language language = syntaxTree.getLanguage();
@@ -310,14 +307,13 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 			int count = errorTable.SI(fileEntry, language);
 			List<ErrorInfo> errorInfos = new ArrayList<>();
 
-
-			for ( int index = 0; index < count;index++ ) {
+			for (int index = 0; index < count; index++) {
 				ErrorTable.Error error = getError(fileEntry, language, index);
 
 				int kind = error.kind;
 
 				// 静态方法
-				if ( kind == 300 ) {
+				if (kind == 300) {
 					continue;
 				}
 
@@ -330,30 +326,32 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 				String msg = error.msg;
 				Vector<ErrorTable.Fix> fixes = error.fixes;
 
-				ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn, msg, kind);
+				ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn,
+						msg, kind);
 				errorInfo.fixes = fixes;
 				errorInfos.add(errorInfo);
 
 			}
 			return errorInfos;
-		}
-		catch (Throwable e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-
-
-	private void clearErrors( SyntaxTree syntaxTree ) {
+	/**
+	* 清楚 语法树错误
+	*/
+	public void clearErrors(SyntaxTree syntaxTree) {
 		FileEntry fileEntry = syntaxTree.getFile();
 		Language language = syntaxTree.getLanguage();
 		this.errorTable.clearNonParserErrors(syntaxTree.getFile(), syntaxTree.getLanguage());
 		ErrorTable.d fileEntryErrorPack = getFileEntryErrorPack(fileEntry, language);
-		if ( fileEntryErrorPack != null ) fileEntryErrorPack.parseErrors.clear();
+		if (fileEntryErrorPack != null)
+			fileEntryErrorPack.parseErrors.clear();
 	}
 
-	private List<ErrorInfo> getAllErrors( SyntaxTree syntaxTree ) {
+	private List<ErrorInfo> getAllErrors(SyntaxTree syntaxTree) {
 
 		FileEntry fileEntry = syntaxTree.getFile();
 		Language language = syntaxTree.getLanguage();
@@ -362,7 +360,7 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 		List<ErrorInfo> errorInfos = new ArrayList<>();
 
-		for ( int index = 0; index < count;index++ ) {
+		for (int index = 0; index < count; index++) {
 			ErrorTable.Error error = getError(fileEntry, language, index);
 
 			int startLine = error.startLine;
@@ -378,14 +376,16 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 			Vector<ErrorTable.Fix> fixes = error.fixes;
 
 			// 静态方法
-			if ( kind == 300 ) {
-				ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn, msg);
+			if (kind == 300) {
+				ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn,
+						msg);
 				errorInfos.add(errorInfo);
-			}  else {
+			} else {
 				// kind == 50 会由Lcom/aide/engine/Engine$DaemonTask;::XL(I)
 				// 转为 112
 				// 49 103
-				ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn, msg, 50);
+				ErrorInfo errorInfo = new ErrorInfo(fileEntry, language, startLine, startColumn, endLine, endColumn,
+						msg, 50);
 				errorInfo.fixes = fixes;
 				errorInfos.add(errorInfo);
 			}
@@ -393,8 +393,6 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 		return errorInfos;
 	}
-
-
 
 	public static class ErrorInfo {
 		public FileEntry file;
@@ -409,8 +407,8 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 		public Vector<ErrorTable.Fix> fixes;
 
-
-		public ErrorInfo( FileEntry file, Language language, int startLine, int startColumn, int endLine, int endColumn, String msg ) {
+		public ErrorInfo(FileEntry file, Language language, int startLine, int startColumn, int endLine, int endColumn,
+				String msg) {
 			this.file = file;
 			this.language = language;
 			this.startLine = startLine;
@@ -420,7 +418,8 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 			this.msg = msg;
 			this.kind = 300;
 		}
-		public ErrorInfo( FileEntry file, Language language, int startLine, int startColumn, int endLine, int endColumn, String msg, int kind ) {
+		public ErrorInfo(FileEntry file, Language language, int startLine, int startColumn, int endLine, int endColumn,
+				String msg, int kind) {
 			this.file = file;
 			this.language = language;
 			this.startLine = startLine;
@@ -432,24 +431,24 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		}
 
 		@Override
-		public String toString( ) {
+		public String toString() {
 			return String.format(" %s -> %s", msg, file.getPathString());
 		}
 	}
 
-	public ErrorTable.Error getError( FileEntry fileEntry, Language language, int i ) {
+	public ErrorTable.Error getError(FileEntry fileEntry, Language language, int i) {
 		ErrorTable.d d = getFileEntryErrorPack(fileEntry, language);
 		int size = d.parseErrors.size();
 
-		if ( i >= size ) {
+		if (i >= size) {
 			Vector<ErrorTable.Error> analysisErrors = d.analysisErrors;
 			return analysisErrors.elementAt(i - size);
 		}
 		Vector<ErrorTable.Error> parseErrors = d.parseErrors;
 		return parseErrors.elementAt(i);
-    }
+	}
 
-	private ErrorTable.d getFileEntryErrorPack( FileEntry fileEntry, Language language ) {
+	private ErrorTable.d getFileEntryErrorPack(FileEntry fileEntry, Language language) {
 		int fileEntryLanguageId = this.model.fileSpace.getFileEntryLanguageId(fileEntry, language);
 		ErrorTable.d d = this.errors.get(fileEntryLanguageId);
 		return d;
@@ -463,7 +462,7 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		public final int endLine;
 		public final int endColumn;
 
-		public HighlighterInfo( int highlighterType, int startLine, int startColumn, int endLine, int endColumn ) {
+		public HighlighterInfo(int highlighterType, int startLine, int startColumn, int endLine, int endColumn) {
 			this.highlighterType = highlighterType;
 			this.startLine = startLine;
 			this.startColumn = startColumn;
@@ -472,8 +471,7 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		}
 	}
 
-
-	public void v52( SyntaxTree syntaxTree ) {
+	public void v52(SyntaxTree syntaxTree) {
 
 		// AIDE的语义分析
 		super.v5(syntaxTree);
@@ -494,10 +492,10 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 		String pathString = fileEntry.getPathString();
 
-		if ( oldVersion == nowVersion ) {
+		if (oldVersion == nowVersion) {
 			// 使用缓存的错误信息
 			List<ErrorInfo> errorInfosCache = this.ecjSemanticAnalysisMap.get(pathString);
-			if ( errorInfosCache == null ) {
+			if (errorInfosCache == null) {
 				return;
 			}
 			// ecj生成的错误信息
@@ -505,7 +503,6 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 			// AIDE的错误信息
 			addErrorInfo(aideSemanticAnalysis, fileEntry, language);
-
 
 			return;
 		}
@@ -529,3 +526,4 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 		addErrorInfo(aideSemanticAnalysis, fileEntry, language);
 	}
 }
+

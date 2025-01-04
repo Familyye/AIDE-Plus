@@ -12,6 +12,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import com.aide.common.AppLog;
 
 public class CompilationUnitDeclarationResolver2 extends org.eclipse.jdt.internal.compiler.Compiler {
 
@@ -44,9 +45,13 @@ public class CompilationUnitDeclarationResolver2 extends org.eclipse.jdt.interna
 		CompilationUnitDeclaration unit = dietParse2(compilationunit);
 		// binding resolution
 		this.lookupEnvironment.completeTypeBindings();
-
-		// resolve
-		resolve2(unit);
+		
+		try{
+			// resolve
+			resolve2(unit);			
+		}catch(Throwable e){
+			AppLog.e("CompilationUnitDeclarationResolver2", "resolve", e);
+		}
 
 
 		return unit;
@@ -79,22 +84,28 @@ public class CompilationUnitDeclarationResolver2 extends org.eclipse.jdt.interna
 	}
 
 	private void resolve2( CompilationUnitDeclaration unit ) {
+		
 		boolean verifyMethods = true;
 		boolean analyzeCode = true;
+		
 		boolean generateCode = !true;
 
 		this.lookupEnvironment.unitBeingCompleted = unit;
 
 		// 解析
 		this.parser.getMethodBodies(unit);
+		
 		if ( unit.scope != null ) {
+			
 			// fault in fields & methods
 			unit.scope.faultInTypes();
+			
 			if ( unit.scope != null && verifyMethods ) {
 				// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
 				// verify inherited methods
 				unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 			}
+			
 			// type checking
 			unit.resolve();
 

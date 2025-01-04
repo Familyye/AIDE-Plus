@@ -25,11 +25,16 @@ android {
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	
+	// 仅编译
 	compileOnly fileTree(dir: 'provider', include: ['.jar'])
 	
-	
-	// 
+	// 仅运行时依赖库
 	runtimeOnly fileTree(dir: 'runtime', include: ['*.jar'])
+	
+	// 资源
+	runtimeOnly fileTree(dir: 'resources', include: ['*.jar'])
+	
+	// xml api-versions 相关库
 	compile fileTree(dir: 'libs-xml-completion', include: ['.jar'])
 	
 	// AIDE底包项目
