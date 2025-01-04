@@ -122,7 +122,10 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 			}
 
 		}
-
+		
+		private static final DefaultCodeFormatterOptions options = DefaultCodeFormatterOptions.getDefaultSettings();
+		private static final DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(options);
+		
 		private void format(AIDEEditor.t editorModel) throws MalformedTreeException, BadLocationException {
 			EditorModel.h h = editorModel.pN(null);
 			String inputText = String.valueOf(h.j6, 0, h.DW);
@@ -131,10 +134,9 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 			String lineSeparator = "\n";
 			IDocument doc = new Document(inputText);
 
-			DefaultCodeFormatterOptions options = DefaultCodeFormatterOptions.getDefaultSettings();
-			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(options);
-
+			
 			int kind = CodeFormatter.K_COMPILATION_UNIT;
+			
 			// 修改增量 基于 charArray offset
 			TextEdit edit = codeFormatter.format(kind, inputText, 0, inputText.length(), indentationLevel,
 					lineSeparator);

@@ -1036,6 +1036,7 @@ public class JavaGradleProjectSupport implements ProjectSupport {
 	// GradleTools.getAndroidMkPath
 	@Override
 	public boolean vy(String dirPath) {
+		// is AndroidMk Module
 		return GradleTools.getAndroidMkPath(dirPath);
 	}
 
