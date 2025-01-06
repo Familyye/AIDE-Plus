@@ -299,7 +299,7 @@ public class ProjectEnvironment {
 		if (compilerOptions == null) {
 			compilerOptions = new CompilerOptions();
 			compilerOptions.parseLiteralExpressionsAsConstants = false;
-			compilerOptions.enablePreviewFeatures = true;
+			// compilerOptions.enablePreviewFeatures = true;
 			
 			// -g
 			compilerOptions.produceDebugAttributes = 
