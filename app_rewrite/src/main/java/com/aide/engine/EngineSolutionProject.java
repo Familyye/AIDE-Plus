@@ -20,6 +20,9 @@ public class EngineSolutionProject implements Parcelable {
 		return EngineSolution.File.j6(file);
 	}
 	
+	public String getProjectPath(){
+		return this.mb;
+	}
 	
 	public static final Parcelable.Creator<EngineSolutionProject> CREATOR = new EngineSolutionProject$a();
 
