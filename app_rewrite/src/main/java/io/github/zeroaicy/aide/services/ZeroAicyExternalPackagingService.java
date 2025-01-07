@@ -1522,6 +1522,11 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 						String classDexFileCache = getClassDexFileCache(classFileSubPath);
 
 						File dexFile = new File(classDexFileCache);
+						// 删除 错误dex
+						if(dexFile.exists() && dexFile.length() == 0){
+							dexFile.delete();
+						}
+						
 						if (classFile.lastModified() > dexFile.lastModified()) {
 							//需要重新dexing的class
 							incrementalClassFiles.add(classFilePath);
