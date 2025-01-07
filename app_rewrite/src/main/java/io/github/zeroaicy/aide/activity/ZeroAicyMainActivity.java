@@ -447,7 +447,8 @@ public class ZeroAicyMainActivity extends MainActivity {
 		if (mimeTypeFromExtension != null 
 			&& !mimeTypeFromExtension.startsWith("text")
 			&& !mimeTypeFromExtension.equals("application/javascript")
-
+			&& !mimeTypeFromExtension.equals("application/json")
+		
 			&& !suffixName.equals("java") 
 			&& !suffixName.equals("class") 
 			&& !suffixName.equals("xml") 
@@ -455,6 +456,8 @@ public class ZeroAicyMainActivity extends MainActivity {
 
 			&& !suffixName.equals("js") 
 			&& !suffixName.equals("css") 
+			&& !suffixName.equals("json") 
+		
 			) {
 
 
@@ -644,8 +647,8 @@ public class ZeroAicyMainActivity extends MainActivity {
 				//实例是 MenuItemImpl
                 return null;
             }
-			CopyOnWriteArrayList<WeakReference> mPresenters = ReflectPie.on(mMenu).get("mPresenters");
-            for (WeakReference ref : mPresenters) {
+			CopyOnWriteArrayList<WeakReference<?>> mPresenters = ReflectPie.on(mMenu).get("mPresenters");
+            for (WeakReference<?> ref : mPresenters) {
                 final Object presenter = ref.get();
                 if (presenter == null) {
                     mPresenters.remove(ref);
