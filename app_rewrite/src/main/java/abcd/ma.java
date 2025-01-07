@@ -19,14 +19,16 @@ import com.aide.ui.util.FileSystem;
 import com.aide.ui.views.editor.EditorModel;
 import io.github.zeroaicy.aide.preference.ZeroAicySetting;
 import io.github.zeroaicy.aide.ui.services.ThreadPoolService;
+import java.util.Map;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.MalformedTreeException;
-import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
+import java.util.HashMap;
 
 /**
  * 代码格式化
@@ -122,10 +124,11 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 			}
 
 		}
-		
-		private static final DefaultCodeFormatterOptions options = DefaultCodeFormatterOptions.getDefaultSettings();
-		private static final DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(options);
-		
+
+		// 防止污染 defaultSettingsMap
+		private static final Map<String, String> defaultSettingsMap = DefaultCodeFormatterOptions.getDefaultSettings()
+				.getMap();
+
 		private void format(AIDEEditor.t editorModel) throws MalformedTreeException, BadLocationException {
 			EditorModel.h h = editorModel.pN(null);
 			String inputText = String.valueOf(h.j6, 0, h.DW);
@@ -134,9 +137,13 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 			String lineSeparator = "\n";
 			IDocument doc = new Document(inputText);
 
-			
 			int kind = CodeFormatter.K_COMPILATION_UNIT;
-			
+
+			// 防止污染 defaultSettingsMap
+			HashMap<String, String> settings = new HashMap<String, String>(defaultSettingsMap);
+			DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions(settings);
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(options);
+
 			// 修改增量 基于 charArray offset
 			TextEdit edit = codeFormatter.format(kind, inputText, 0, inputText.length(), indentationLevel,
 					lineSeparator);
