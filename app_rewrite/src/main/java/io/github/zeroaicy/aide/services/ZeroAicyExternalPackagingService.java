@@ -1,6 +1,5 @@
 package io.github.zeroaicy.aide.services;
 
-
 import android.content.Intent;
 import android.text.TextUtils;
 import com.aide.common.AppLog;
@@ -33,6 +32,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.LinkedHashSet;
+import com.aide.ui.util.FileSystem;
 
 public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 	@Override
@@ -48,10 +49,9 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				//释放旧的
 				this.WB.we();
 				//换成自己的
-				this.WB = externalPackagingServiceWorker;			
-			}	
-		}
-		catch (Throwable e) {
+				this.WB = externalPackagingServiceWorker;
+			}
+		} catch (Throwable e) {
 			AppLog.e("ZeroAicyPackagingWorker", "替换打包实现失败", e);
 		}
 		super.onCreate();
@@ -68,7 +68,6 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 		AppLog.d(TAG, "onDestroy");
 		super.onDestroy();
 	}
-
 
 	public PackagingWorkerWrapper getExternalPackagingServiceWorker() {
 		return new ZeroAicyPackagingWorker(this);
@@ -91,31 +90,36 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 		// QX minsdk是否大于等于21
 		@Override
-		public PackagingWorkerWrapper.TaskWrapper 
-		getTaskWrapper(String mainClassCacheDir, String[] classFileRootDirs, String[] sourceDirs, 
-					   String[] dependencyLibs, String outDirPath, String jardexPath, 
-					   String aAptResourcePath, String[] nativeLibDirs, String outFilePath, 
-					   String signaturePath, String signaturePassword, String signatureAlias, 
-					   String signatureAliasPassword, boolean buildRefresh, boolean optimze_dex, boolean QX) {
+		public PackagingWorkerWrapper.TaskWrapper getTaskWrapper(String mainClassCacheDir, String[] classFileRootDirs,
+				String[] sourceDirs, String[] dependencyLibs, String outDirPath, String jardexPath,
+				String aAptResourcePath, String[] nativeLibDirs, String outFilePath, String signaturePath,
+				String signaturePassword, String signatureAlias, String signatureAliasPassword, boolean buildRefresh,
+				boolean optimze_dex, boolean QX) {
 
-
-			return new ZeroAicyR8Task(mainClassCacheDir, classFileRootDirs, sourceDirs, 
-									  dependencyLibs, outDirPath, jardexPath, aAptResourcePath, 
-									  nativeLibDirs, outFilePath, signaturePath, signaturePassword, 
-									  signatureAlias, signatureAliasPassword, buildRefresh, optimze_dex, QX);
+			return new ZeroAicyR8Task(mainClassCacheDir, classFileRootDirs, sourceDirs, dependencyLibs, outDirPath,
+					jardexPath, aAptResourcePath, nativeLibDirs, outFilePath, signaturePath, signaturePassword,
+					signatureAlias, signatureAliasPassword, buildRefresh, optimze_dex, QX);
 		}
 
 		public class ZeroAicyR8Task extends TaskWrapper {
 			private HashMap<String, String> environment = new HashMap<String, String>();
 
-			public ZeroAicyR8Task(String mainClassCacheDir, String[] classFileRootDirs, String[] sourceDirs, String[] dependencyLibs, String outDirPath, String Zo, String aAptResourcePath, String[] nativeLibDirs, String outFilePath, String signaturePath, String signaturePassword, String signatureAlias, String signatureAliasPassword, boolean buildRefresh, boolean Ws, boolean QX) {
-				super(mainClassCacheDir, classFileRootDirs, sourceDirs, dependencyLibs, outDirPath, Zo, aAptResourcePath, nativeLibDirs, outFilePath, signaturePath, signaturePassword, signatureAlias, signatureAliasPassword, buildRefresh, Ws, QX);
+			public ZeroAicyR8Task(String mainClassCacheDir, String[] classFileRootDirs, String[] sourceDirs,
+					String[] dependencyLibs, String outDirPath, String Zo, String aAptResourcePath,
+					String[] nativeLibDirs, String outFilePath, String signaturePath, String signaturePassword,
+					String signatureAlias, String signatureAliasPassword, boolean buildRefresh, boolean Ws,
+					boolean QX) {
+				super(mainClassCacheDir, classFileRootDirs, sourceDirs, dependencyLibs, outDirPath, Zo,
+						aAptResourcePath, nativeLibDirs, outFilePath, signaturePath, signaturePassword, signatureAlias,
+						signatureAliasPassword, buildRefresh, Ws, QX);
 
 				// 从文件夹添加原生库文件，
-				this.nativeLibZipEntryTransformer = new ZipEntryTransformer.NativeLibFileTransformer(getAndroidFxtractNativeLibs());
-				this.libgdxNativesTransformer = new ZipEntryTransformer.LibgdxNativesTransformer(getAndroidFxtractNativeLibs());
+				this.nativeLibZipEntryTransformer = new ZipEntryTransformer.NativeLibFileTransformer(
+						getAndroidFxtractNativeLibs());
+				this.libgdxNativesTransformer = new ZipEntryTransformer.LibgdxNativesTransformer(
+						getAndroidFxtractNativeLibs());
 				if (ZeroAicySetting.isEnableEnsureCapacity()) {
-					this.environment.put("EnsureCapacity", getLibEnsureCapacityPathPath());				
+					this.environment.put("EnsureCapacity", getLibEnsureCapacityPathPath());
 				}
 				// 初始化
 				DexingJarTask.init(this.environment);
@@ -140,14 +144,14 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				if (isMinifyAndroidProject()) {
 					now = Utils.nowTime();
 					packagingAndroidMinify();
-					AppLog.d(TAG, "packaging Minify Android : %s ms" , Utils.nowTime() - now);
+					AppLog.d(TAG, "packaging Minify Android : %s ms", Utils.nowTime() - now);
 					return;
 				}
 
 				if (isMinifyJavaGradleProject()) {
 					now = Utils.nowTime();
 					packagingJavaGradleMinify();
-					AppLog.d(TAG, "packaging Minify Java Gradle: %s ms" , Utils.nowTime() - now);
+					AppLog.d(TAG, "packaging Minify Java Gradle: %s ms", Utils.nowTime() - now);
 					return;
 				}
 
@@ -170,7 +174,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 			/**
 			 * 返回 合并class文件缓存后的输出路径？
-
+			
 			 */
 			private String getMainClassesDexZipFilePath() {
 				return getMergerCacheDirPath() + "/classes.dex.zip";
@@ -182,7 +186,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 			//混淆
 			private File getMixUpDexZipFile(boolean delete) {
-				File file = new File(getMergerCacheDirPath() , "/classes_mix_up.dex.zip");
+				File file = new File(getMergerCacheDirPath(), "/classes_mix_up.dex.zip");
 				if (file.exists() && delete) {
 					file.delete();
 				}
@@ -241,7 +245,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				List<String> dexingLibs = getDexingLibs();
 				List<String> needDexingLibs = new ArrayList<>();
 
-				for (String inputJarFilePath: dexingLibs) {
+				for (String inputJarFilePath : dexingLibs) {
 					checkInterrupted();
 
 					File inputJarFile = new File(inputJarFilePath);
@@ -249,9 +253,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					File dexCacheFile = new File(outputDexZipFile);
 
 					//根据时间戳判断是否需要dexing
-					if (isBuildRefresh
-						|| !dexCacheFile.exists() 
-						|| inputJarFile.lastModified() > dexCacheFile.lastModified()) {
+					if (isBuildRefresh || !dexCacheFile.exists()
+							|| inputJarFile.lastModified() > dexCacheFile.lastModified()) {
 						// 需要重写dexing，添加进dexing列表
 						needDexingLibs.add(inputJarFilePath);
 					} else {
@@ -265,17 +268,18 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					DexingJarTask.Configuration configuration = new DexingJarTask.Configuration();
 					configuration.minSdkVersion = getMinSdk();
 					configuration.user_android_jar = getUserAndroidJar();
-					configuration.dependencyLibs =  getDependencyLibs();
+					configuration.dependencyLibs = getDependencyLibs();
 
 					configuration.dexingingCount = dexingingCount;
 
 					List<DexingJarTask> tasks = new ArrayList<>();
 
 					final int needDexingLibsSize = needDexingLibs.size();
-					DexingJarTask.TaskDoneLister taskDoneLister = new DexingJarTask.TaskDoneLister(){
+					DexingJarTask.TaskDoneLister taskDoneLister = new DexingJarTask.TaskDoneLister() {
 						@Override
 						public synchronized void done() {
-							showProgress(String.format("Dexing - Libraries (%d/%d)", dexingingCount.get(), needDexingLibsSize), 64);
+							showProgress(String.format("Dexing - Libraries (%d/%d)", dexingingCount.get(),
+									needDexingLibsSize), 64);
 						}
 					};
 					// 先显示一下
@@ -287,7 +291,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					long now = Utils.nowTime();
 
 					// DexingJarTask专用线程
-					ExecutorService threadPoolService = ThreadPoolService.getThreadPoolService(DexingJarTask.ThreadPoolServiceName, 3);
+					ExecutorService threadPoolService = ThreadPoolService
+							.getThreadPoolService(DexingJarTask.ThreadPoolServiceName, 3);
 
 					List<Future<DexingJarTask>> futures = threadPoolService.invokeAll(tasks);
 
@@ -302,10 +307,9 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 							} else {
 								dependencyLibDexs.add(dexingJarTask.outputDexZipFile);
 							}
-						}
-						catch (Throwable e) {
+						} catch (Throwable e) {
 							if (e instanceof ExecutionException) {
-								e = ((ExecutionException)e).getCause();
+								e = ((ExecutionException) e).getCause();
 							}
 							throw e;
 						}
@@ -328,7 +332,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			/**
 			 * 对需要dexing的Jar进行分组
 			 */
-			private void fillDexingJarTasks(List<String> needDexingLibs, DexingJarTask.Configuration configuration, DexingJarTask.TaskDoneLister taskDoneLister, List<DexingJarTask> tasks) {
+			private void fillDexingJarTasks(List<String> needDexingLibs, DexingJarTask.Configuration configuration,
+					DexingJarTask.TaskDoneLister taskDoneLister, List<DexingJarTask> tasks) {
 
 				final int needDexingLibsSize = needDexingLibs.size();
 
@@ -362,8 +367,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 					long smallInputJarFilesSize = bigInputJarFileSize;
 					// 在阈值内
-					while (smallInputJarFilesSize < filterThreshold2 
-						   && index < needDexingLibsSize) {
+					while (smallInputJarFilesSize < filterThreshold2 && index < needDexingLibsSize) {
 
 						String inputJarFile2 = needDexingLibs.get(index);
 						String outputDexZipFile2 = getJarDexCachePath(inputJarFile2);
@@ -372,7 +376,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 						// 当前文件自己就是大文件，仍然是大文件模式
 						if (fileSize2 > filterThreshold) {
-							DexingJarTask dexingJarTask = new DexingJarTask(inputJarFile2, outputDexZipFile2, configuration);
+							DexingJarTask dexingJarTask = new DexingJarTask(inputJarFile2, outputDexZipFile2,
+									configuration);
 							dexingJarTask.setTaskDoneLister(taskDoneLister);
 							tasks.add(dexingJarTask);
 						} else {
@@ -388,45 +393,46 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					}
 					// 此时说明小文件集合大于阈值
 					// 启用批量模式
-					DexingJarTask dexingJarTask = new DexingJarTask(smallInputJarFiles, smallOutputDexZipFiles, configuration);
+					DexingJarTask dexingJarTask = new DexingJarTask(smallInputJarFiles, smallOutputDexZipFiles,
+							configuration);
 					dexingJarTask.setTaskDoneLister(taskDoneLister);
 					tasks.add(dexingJarTask);
 					AppLog.d(TAG, "DexingJarTask内文件 %d", smallInputJarFiles.size());
 				}
 			}
 
-			public void MergingJarDexFiles(List<String> dependencyLibDexs, String dependencyMergerFile) throws Throwable {
+			public void MergingJarDexFiles(List<String> dependencyLibDexs, String dependencyMergerFile)
+					throws Throwable {
 				showProgress("Merging - Libraries", 65);
-				List<String> argsList  = new ArrayList<String>();
+				List<String> argsList = new ArrayList<String>();
 				String user_androidjar = null;
 				// 合并*.jar.dex
-				D8TaskWrapper.fillD8Args(argsList, getMinSdk(), false, false, user_androidjar, null, dependencyMergerFile);
-				
+				D8TaskWrapper.fillD8Args(argsList, getMinSdk(), false, false, user_androidjar, null,
+						dependencyMergerFile);
+
 				// 处理 record
-				for( String outputDexZipFile : dependencyLibDexs){
+				for (String outputDexZipFile : dependencyLibDexs) {
 					// 根据合并时的 输入 jar.dex.zip 文件 计算globals文件
 					String outputDexZipPath = outputDexZipFile + "--globals.zip";
-					
+
 					File globalsZipFile = new File(outputDexZipPath);
-					if( !globalsZipFile.exists() 
-						|| !globalsZipFile.isFile()
-						// 空zip 22 bytes
-						|| globalsZipFile.length() <= 22){
+					if (!globalsZipFile.exists() || !globalsZipFile.isFile()
+					// 空zip 22 bytes
+							|| globalsZipFile.length() <= 22) {
 						continue;
 					}
-					
+
 					argsList.add("--globals");
 					argsList.add(outputDexZipPath);
 				}
-				
+
 				//输入dexs
 				argsList.addAll(dependencyLibDexs);
-				
+
 				try {
 					// 将采用 子进程方式，防止oom
 					D8TaskWrapper.runD8Task(argsList, environment);
-				}
-				catch (Throwable e) {
+				} catch (Throwable e) {
 
 					// 有错误时，删除缓存
 					new File(dependencyMergerFile).delete();
@@ -439,7 +445,6 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			private boolean isMergingJarDexFiles(List<String> inputLibDexs) throws FileNotFoundException, IOException {
 				File dependencyMergerFile = new File(getDependencyMergerFilePath());
 				long lastModified = dependencyMergerFile.lastModified();
-
 
 				boolean isMergingJarDexFiles = false;
 
@@ -456,7 +461,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				File inputInfoFile = new File(getDependencyMergerFilePath() + "_inputInfo.txt");
 				if (!inputInfoFile.exists()) {
 					isMergingJarDexFiles = true;
-				} 
+				}
 
 				if (!isMergingJarDexFiles) {
 					Set<String> lastInputJarFilesSet = new HashSet<>();
@@ -467,34 +472,30 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 						while ((line = br.readLine()) != null) {
 							lastInputJarFilesSet.add(line);
 						}
-					}
-					finally {
+					} finally {
 						IOUtils.close(br);
 					}
 					//比较
 					isMergingJarDexFiles = inputJarFilesSet.size() != lastInputJarFilesSet.size()
-						|| !inputJarFilesSet.containsAll(lastInputJarFilesSet);
+							|| !inputJarFilesSet.containsAll(lastInputJarFilesSet);
 				}
 
 				if (isMergingJarDexFiles) {
 					//写入inputJarFilesSet
-					FileOutputStream output =null;
-					try { 
+					FileOutputStream output = null;
+					try {
 						output = new FileOutputStream(inputInfoFile);
 						for (String input : inputJarFilesSet) {
 							output.write(input.getBytes());
 							output.write('\n');
 						}
 						output.close();
-					}
-					finally {
+					} finally {
 						IOUtils.close(output);
 					}
 				}
 				return isMergingJarDexFiles;
 			}
-
-
 
 			public void deleteADRTClassFile(String classFileCacheDir) {
 				if (classFileCacheDir.endsWith("debug") || ZeroAicySetting.enableADRT()) {
@@ -516,7 +517,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 						if (adrtDexFile.exists()) {
 							adrtDexFile.delete();
 						}
-					}	
+					}
 				}
 
 			}
@@ -530,14 +531,13 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				// 
 				Set<String> classFileMap = new HashSet<>();
 
-
 				//填充class文件
 
 				// 主项目class缓存路径
 				String mainProjectClassCacheDirPath = getMainClassCacheDir();
-				
+
 				// AppLog.println_d("mainProjectClassCacheDirPath 2 " + mainProjectClassCacheDirPath);
-				
+
 				// 优先填充填主项目的class缓存
 				fillClassFileCache(mainProjectClassCacheDirPath, incrementalClassFiles, classFileMap);
 
@@ -545,14 +545,13 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				for (String classFileRootDir : getAllClassFileRootDirs()) {
 					checkInterrupted();
 
-					if (classFileRootDir == null 
-						|| classFileRootDir.equals(mainProjectClassCacheDirPath)) {
-							continue;
+					if (classFileRootDir == null || classFileRootDir.equals(mainProjectClassCacheDirPath)) {
+						continue;
 					}
 					// 填充子项目class缓存
 					fillClassFileCache(classFileRootDir, incrementalClassFiles, classFileMap);
 				}
-				
+
 				String mainClassesDexZipFilePath = getMainClassesDexZipFilePath();
 				//增量为0，不dexing
 				if (incrementalClassFiles.isEmpty()) {
@@ -568,9 +567,10 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				showProgress("Merging - Classes", 69);
 
 				// 查询需要合并的 dex
-				List<String> classeDexFiles = FileUtil.Files2Strings(FileUtil.findFile(new File(getDefaultClassDexCacheDirPath()), ".dex"));
+				List<String> classeDexFiles = FileUtil
+						.Files2Strings(FileUtil.findFile(new File(getDefaultClassDexCacheDirPath()), ".dex"));
 				// 合并dex
-				mergingClassDexs(mainClassesDexZipFilePath, classeDexFiles);				
+				mergingClassDexs(mainClassesDexZipFilePath, classeDexFiles);
 
 				return mainClassesDexZipFilePath;
 			}
@@ -600,10 +600,10 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					argsList.add("--lib");
 					argsList.add(compileOnlyLib);
 				}
-				
+
 				argsList.add("--globals-output");
 				argsList.add(getDefaultClassDexGlobalsPath());
-				
+
 				//添加需要编译的jar
 				argsList.addAll(dexingClassFiles);
 
@@ -617,17 +617,17 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				//删除缓存文件
 				outDexZipFile.delete();
 
-				List<String> argsList  = new ArrayList<String>();
-				String user_androidjar = null; 
+				List<String> argsList = new ArrayList<String>();
+				String user_androidjar = null;
 				// 合并 AIDE编译的 *.class.dex
 				D8TaskWrapper.fillD8Args(argsList, getMinSdk(), false, false, user_androidjar, null, outDexZipPath);
-				
+
 				String defaultClassDexGlobalsPath = getDefaultClassDexGlobalsPath();
 				if (new File(defaultClassDexGlobalsPath).isFile()) {
 					argsList.add("--globals");
 					argsList.add(defaultClassDexGlobalsPath);
 				}
-				
+
 				//输入dexs
 				argsList.addAll(classeDexFiles);
 				// 将采用 子进程方式，防止oom
@@ -658,14 +658,13 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			/**
 			 * compileOnly
 			 */
-			private List<String> compileOnlyLibs  = new ArrayList<>();
+			private List<String> compileOnlyLibs = new ArrayList<>();
 
 			/**
 			 * aar混淆规则文件
 			 */
-			private List<Path> proguardPaths  = new ArrayList<>();
-			private List<String> proguardFiles  = new ArrayList<>();
-
+			private List<Path> proguardPaths = new ArrayList<>();
+			private List<String> proguardFiles = new ArrayList<>();
 
 			/**
 			 * 初始化环境
@@ -680,7 +679,6 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				this.compileOnlyLibs = scopeTypeQuerier.getCompileOnlyLibs();
 				//this.runtimeOnlyLibs = scopeTypeQuerier.getRuntimeOnlyLibs();
 				this.dexingLibs = scopeTypeQuerier.getDexingLibs();
-
 
 			}
 			private void deleteCacheDir() {
@@ -714,15 +712,17 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				File aaptRulesFile = new File(getDefaultIntermediatesDirPath(), "aapt_rules.txt");
 				if (aaptRulesFile.isFile()) {
 					this.proguardFiles.add(aaptRulesFile.getAbsolutePath());
-					this.proguardPaths.add(aaptRulesFile.toPath());			
+					this.proguardPaths.add(aaptRulesFile.toPath());
 				}
 
 				/**
 				 * 从主项目build.gradle添加混淆规则文件
 				 */
-				for (String proguardPulesFilePath  : getZeroAicyBuildGradle().getProguardFiles()) {
-					if (TextUtils.isEmpty(proguardPulesFilePath)) {continue;}
-					File proguardPulesFile  = new File(proguardPulesFilePath);
+				for (String proguardPulesFilePath : getZeroAicyBuildGradle().getProguardFiles()) {
+					if (TextUtils.isEmpty(proguardPulesFilePath)) {
+						continue;
+					}
+					File proguardPulesFile = new File(proguardPulesFilePath);
 					if (proguardPulesFile.isFile()) {
 						this.proguardFiles.add(proguardPulesFile.getAbsolutePath());
 						this.proguardPaths.add(proguardPulesFile.toPath());
@@ -738,7 +738,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 						if (proguardFile.isFile()) {
 							this.proguardFiles.add(proguardFile.getAbsolutePath());
 							this.proguardPaths.add(proguardFile.toPath());
-						}					
+						}
 					}
 				}
 
@@ -747,10 +747,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 				AppLog.d(TAG, "合并待混淆类库");
 
-
 				// get混淆输出文件路径[dex.zip]
 				File mixUpDexZipFile = getMixUpDexZipFile(true);
-
 
 				//BaseDiagnosticsHandler baseDiagnosticsHandler = new BaseDiagnosticsHandler();
 				//32线程
@@ -804,7 +802,6 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 			}
 
-
 			/**
 			 * 遍历AIDE Class缓存路径添加class文件
 			 */
@@ -818,8 +815,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				//遍历添加所有项目的class缓存目录
 				for (String classFileRootDir : getAllClassFileRootDirs()) {
 					checkInterrupted();
-					if (classFileRootDir != null 
-						&& !classFileRootDir.equals(mainProjectClassCacheDirPath)) {
+					if (classFileRootDir != null && !classFileRootDir.equals(mainProjectClassCacheDirPath)) {
 						fillAllClassFileCache(classFileRootDir, allClassFiles, classFileSet);
 					}
 				}
@@ -834,9 +830,11 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				/**
 				 * 从主项目build.gradle添加混淆规则文件
 				 */
-				for (String proguardPulesFilePath  : getZeroAicyBuildGradle().getProguardFiles()) {
-					if (TextUtils.isEmpty(proguardPulesFilePath)) {continue;}
-					File proguardPulesFile  = new File(proguardPulesFilePath);
+				for (String proguardPulesFilePath : getZeroAicyBuildGradle().getProguardFiles()) {
+					if (TextUtils.isEmpty(proguardPulesFilePath)) {
+						continue;
+					}
+					File proguardPulesFile = new File(proguardPulesFilePath);
 					if (proguardPulesFile.isFile()) {
 						this.proguardFiles.add(proguardPulesFile.getAbsolutePath());
 						this.proguardPaths.add(proguardPulesFile.toPath());
@@ -844,7 +842,6 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				}
 
 				AppLog.d(TAG, "合并待混淆类库");
-
 
 				// get混淆输出文件路径[dex.zip]
 				File mixUpDexZipFile = getMixUpDexZipFile(true);
@@ -906,19 +903,22 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				//混淆
 				minify2();
 
-				showProgress("构建APK", 80);			
+				showProgress("构建APK", 80);
 				//未zip优化，未签名
 				File unZipAlignedSignedApkFile = getUnZipAlignSignerApkFile(true);
-				PackagingStream packagingZipOutput = new PackagingStream(new FileOutputStream(unZipAlignedSignedApkFile));
+				PackagingStream packagingZipOutput = new PackagingStream(
+						new FileOutputStream(unZipAlignedSignedApkFile));
 
 				AppLog.d(TAG, "从aapt2生成文件添加资源");
 				//resources_ap_file
 				String aAptResourceFilePath = getAAptResourceFilePath();
 				//打包resources.ap_ 文件
-				ZipEntryTransformerService.packagingZipFile(aAptResourceFilePath, zipResourceZipEntryTransformer, packagingZipOutput, true);
+				ZipEntryTransformerService.packagingZipFile(aAptResourceFilePath, zipResourceZipEntryTransformer,
+						packagingZipOutput, true);
 
 				// 从文件夹添加原生库文件，
-				ZipEntryTransformer.NativeLibFileTransformer nativeLibZipEntryTransformer = new ZipEntryTransformer.NativeLibFileTransformer(getAndroidFxtractNativeLibs());
+				ZipEntryTransformer.NativeLibFileTransformer nativeLibZipEntryTransformer = new ZipEntryTransformer.NativeLibFileTransformer(
+						getAndroidFxtractNativeLibs());
 
 				//从原生库目录添加so
 				for (String nativeLibDirPath : this.getNativeLibDirs()) {
@@ -927,24 +927,34 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 						continue;
 					}
 					AppLog.d(TAG, "从原生库添加" + nativeLibDirPath);
-					ZipEntryTransformerService.packagingDirFile(nativeLibDirPath, nativeLibDirFile, nativeLibZipEntryTransformer, packagingZipOutput);
+					ZipEntryTransformerService.packagingDirFile(nativeLibDirPath, nativeLibDirFile,
+							nativeLibZipEntryTransformer, packagingZipOutput);
 
 				}
+
 				//打包混淆后的dex
-				ZipEntryTransformerService.packagingZipFile(getMixUpDexZipFile(false).getAbsolutePath(), dexZipEntryTransformer, packagingZipOutput, false);
+				ZipEntryTransformerService.packagingZipFile(getMixUpDexZipFile(false).getAbsolutePath(),
+						dexZipEntryTransformer, packagingZipOutput, false);
+
+				// 打包自定义 assetsSrcDirs下资源
+				packagingAssetsSrcDirsResource(packagingZipOutput);
 
 				//打包源码目录下的资源
-				packagingSourceDirsResource(packagingZipOutput);			
+				packagingSourceDirsResource(packagingZipOutput);
+
 				//打包jar资源，优先第一个
 				packagingJarResources(packagingZipOutput);
+
 				// 打包 libgdxNatives依赖资源
 				packagingLibgdxNativesResources(packagingZipOutput);
+
 				//打包完成
 				packagingZipOutput.close();
 
 				//优化并签名apk
 				zipalignSignerApk();
 			}
+
 			/**
 			 * 打包Java项目即zip
 			 */
@@ -959,12 +969,16 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				}
 
 				File outTempFile = File.createTempFile(outFile.getName(), ".unSigner", outDirFile);
-				
+
 				try {
 					//构建输出文件
 					PackagingStream packagingZipOutput = new PackagingStream(new FileOutputStream(outTempFile));
 					//打包dex
 					packagingDexs(dexZipPathList, packagingZipOutput);
+					
+					// 打包自定义 assetsSrcDirs下资源
+					packagingAssetsSrcDirsResource(packagingZipOutput);
+					
 					packagingSourceDirsResource(packagingZipOutput);
 					//打包依赖库资源
 					packagingJarResources(packagingZipOutput);
@@ -972,25 +986,23 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					packagingLibgdxNativesResources(packagingZipOutput);
 
 					packagingZipOutput.close();
-
-					ApkSignerService.signerApk(
-						getMinSdk(),
-						getSignaturePath(),
-						getSignatureAlias(),
-						getSignatureAliasPassword(),
-						getSignaturePassword(),
-						outTempFile, 
-						outFile);
-				}
-				finally {
+					
+					// Java项目签名
+					String signaturePath = getSignaturePath();
+					// if( signaturePath != null ) 
+					ApkSignerService.signerApk(getMinSdk(), signaturePath, getSignatureAlias(),
+							getSignatureAliasPassword(), getSignaturePassword(), outTempFile, outFile);
+				} finally {
 					outTempFile.delete();
 				}
 			}
 
-			private void packagingDexs(List<String> dexZipPathList, PackagingStream packagingZipOutput) throws IOException {
+			private void packagingDexs(List<String> dexZipPathList, PackagingStream packagingZipOutput)
+					throws IOException {
 				AppLog.d(TAG, "添加classes.dex");
 				for (String dexZipPath : dexZipPathList) {
-					ZipEntryTransformerService.packagingZipFile(dexZipPath, dexZipEntryTransformer, packagingZipOutput, false);
+					ZipEntryTransformerService.packagingZipFile(dexZipPath, dexZipEntryTransformer, packagingZipOutput,
+							false);
 				}
 			}
 			/**
@@ -1003,25 +1015,32 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				//未zip优化，未签名
 				File unZipAlignedUnSignedApkFile = getUnZipAlignSignerApkFile(true);
 
-				PackagingStream packagingZipOutput = new PackagingStream(new FileOutputStream(unZipAlignedUnSignedApkFile));
+				PackagingStream packagingZipOutput = new PackagingStream(
+						new FileOutputStream(unZipAlignedUnSignedApkFile));
 				//resources_ap_file
 				String aAptResourceFilePath = getAAptResourceFilePath();
 				AppLog.d(TAG, "Adding aapt generated resources from " + aAptResourceFilePath);
 				//打包resources.ap_ 文件
-				ZipEntryTransformerService.packagingZipFile(aAptResourceFilePath, zipResourceZipEntryTransformer, packagingZipOutput, true);
+				ZipEntryTransformerService.packagingZipFile(aAptResourceFilePath, zipResourceZipEntryTransformer,
+						packagingZipOutput, true);
 
 				//从原生库目录添加so
 				AppLog.d(TAG, "添加原生库");
 				for (String nativeLibDirPath : this.getNativeLibDirs()) {
 					File nativeLibDirFile = new File(nativeLibDirPath);
 					if (nativeLibDirFile.exists()) {
-						ZipEntryTransformerService.packagingDirFile(nativeLibDirPath, nativeLibDirFile, nativeLibZipEntryTransformer, packagingZipOutput);
+						ZipEntryTransformerService.packagingDirFile(nativeLibDirPath, nativeLibDirFile,
+								nativeLibZipEntryTransformer, packagingZipOutput);
 					}
 				}
 				//打包dex
 				packagingDexs(dexZipPathList, packagingZipOutput);
+				
+				// 打包自定义 assetsSrcDirs下资源
+				packagingAssetsSrcDirsResource(packagingZipOutput);
+
 				//打包源码目录下的资源
-				packagingSourceDirsResource(packagingZipOutput);			
+				packagingSourceDirsResource(packagingZipOutput);
 				//打包jar资源，优先第一个
 				packagingJarResources(packagingZipOutput);
 				// 打包 libgdxNatives依赖资源
@@ -1040,32 +1059,62 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				//优化apk
 				showProgress("ZeroAicy Zipalign APK ", 85);
 				// zipalign命令路径 优化前，未签名 优化后，未签名
-				File unSignedApkFile = ApkSignerService.zipalignApk(getZipalignLibPath(), getUnZipAlignSignerApkFile(false), getUnSignedApkFile(true));
+				File unSignedApkFile = ApkSignerService.zipalignApk(getZipalignLibPath(),
+						getUnZipAlignSignerApkFile(false), getUnSignedApkFile(true));
 
 				//签名
 				AppLog.d(TAG, "开始Signing APK: ");
 				long now = Utils.nowTime();
 				//-zipaligned-unsigned 
 				showProgress("ZeroAicy Signing APK ", 90);
-				ApkSignerService.signerApk(
-					getMinSdk(),
-					getSignaturePath(),
-					getSignatureAlias(),
-					getSignatureAliasPassword(),
-					getSignaturePassword(),
-					unSignedApkFile, 
-					new File(getOutFilePath()));
+				ApkSignerService.signerApk(getMinSdk(), getSignaturePath(), getSignatureAlias(),
+						getSignatureAliasPassword(), getSignaturePassword(), unSignedApkFile,
+						new File(getOutFilePath()));
 
 				AppLog.d(TAG, "Signing APK共用时: %sms", Utils.nowTime() - now);
 			}
 
-			private void packagingLibgdxNativesResources(PackagingStream packagingZipOutput) throws IOException, Throwable {
+			private void packagingLibgdxNativesResources(PackagingStream packagingZipOutput)
+					throws IOException, Throwable {
 				AppLog.d(TAG, "从LibgdxNatives添加资源");
 				for (String libgdxNativesLibPath : getScopeTypeQuerier().getLibgdxNativesLibs()) {
 					this.libgdxNativesTransformer.setCurLibgdxNativesLibsPath(libgdxNativesLibPath);
-					ZipEntryTransformerService.packagingZipFile(libgdxNativesLibPath, libgdxNativesTransformer, packagingZipOutput, false);
+					ZipEntryTransformerService.packagingZipFile(libgdxNativesLibPath, libgdxNativesTransformer,
+							packagingZipOutput, false);
 				}
 
+			}
+
+			private void packagingAssetsSrcDirsResource(PackagingStream packagingZipOutput) throws IOException {
+				ZeroAicyBuildGradle zeroAicyBuildGradle = getZeroAicyBuildGradle();
+				if (zeroAicyBuildGradle.isSingleton()) {
+					// 非gradle项目
+					return;
+				}
+				LinkedHashSet<String> defaultAssetsSrcDirs = zeroAicyBuildGradle.getDefaultAssetsSrcDirs();
+				if (defaultAssetsSrcDirs == null) {
+					// 没有设置 assets.srcDirs
+					return;
+				}
+				
+				String projectPath = FileSystem.getParent(zeroAicyBuildGradle.configurationPath);
+				
+				// 遍历添加
+				for( String assetsSrcDir : defaultAssetsSrcDirs){
+					
+					File sourceDirFile = new File(projectPath, assetsSrcDir);
+					if (!sourceDirFile.exists()) {
+						continue;
+					}
+					
+					// 相对路径
+					String relativeRootDirFilePath = sourceDirFile.getAbsolutePath();
+					
+					// 打包
+					ZipEntryTransformerService.packagingDirFile(relativeRootDirFilePath, "assets/", sourceDirFile,
+																zipResourceZipEntryTransformer, packagingZipOutput);
+					
+				}
 			}
 
 			private void packagingSourceDirsResource(PackagingStream packagingZipOutput) throws IOException {
@@ -1080,7 +1129,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					if (!sourceDirFile.exists()) {
 						continue;
 					}
-					ZipEntryTransformerService.packagingDirFile(sourceDir, new File(sourceDir), zipResourceZipEntryTransformer, packagingZipOutput);
+					ZipEntryTransformerService.packagingDirFile(sourceDir, sourceDirFile,
+							zipResourceZipEntryTransformer, packagingZipOutput);
 				}
 			}
 
@@ -1090,11 +1140,13 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 				// dexing jar资源
 				for (String dependencyLibPath : this.dexingLibs) {
-					ZipEntryTransformerService.packagingZipFile(dependencyLibPath, zipResourceZipEntryTransformer, packagingZipOutput, false);
+					ZipEntryTransformerService.packagingZipFile(dependencyLibPath, zipResourceZipEntryTransformer,
+							packagingZipOutput, false);
 				}
 				// runtimeOnly Jar资源
 				for (String runtimeOnlyJarPath : getScopeTypeQuerier().getRuntimeOnlyLibs()) {
-					ZipEntryTransformerService.packagingZipFile(runtimeOnlyJarPath, dexZipEntryTransformer, packagingZipOutput, false);
+					ZipEntryTransformerService.packagingZipFile(runtimeOnlyJarPath, dexZipEntryTransformer,
+							packagingZipOutput, false);
 				}
 
 			}
@@ -1138,30 +1190,27 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 	}
 	public abstract class PackagingWorkerWrapper extends ExternalPackagingService.ExternalPackagingServiceWorker {
 
-		public 
-		ExternalPackagingService externalPackagingService;
+		public ExternalPackagingService externalPackagingService;
 		private String noBackupFilesDirPath;
 		public PackagingWorkerWrapper(ExternalPackagingService externalPackagingService) {
 			//父类没有使用封闭类[ExternalPackagingService]
 			this.externalPackagingService = externalPackagingService;
 		}
 
-
-
 		private String libEnsureCapacityPath;
 		public String getLibEnsureCapacityPathPath() {
 			if (this.libEnsureCapacityPath == null) {
-				this.libEnsureCapacityPath = externalPackagingService.getApplicationInfo().nativeLibraryDir + "/libEnsureCapacity.so";
+				this.libEnsureCapacityPath = externalPackagingService.getApplicationInfo().nativeLibraryDir
+						+ "/libEnsureCapacity.so";
 			}
 			return this.libEnsureCapacityPath;
 		}
 
 		public String getUserAndroidJar() {
 			String defaultAndroidJar = getNoBackupFilesDirPath() + "/.aide/android.jar";
-			
+
 			String userAndroidJar = ZeroAicySetting.getDefaultSpString("user_androidjar", noBackupFilesDirPath);
-			
-			
+
 			if (TextUtils.isEmpty(userAndroidJar)) {
 				return defaultAndroidJar;
 			}
@@ -1184,15 +1233,20 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 		}
 
 		@Override
-		public final void Zo(String str, String[] strArr, String[] strArr2, String[] strArr3, String str2, String str3, String str4, String[] strArr4, String str5, String str6, String str7, String str8, String str9, boolean z, boolean z2, boolean z3) {
+		public final void Zo(String str, String[] strArr, String[] strArr2, String[] strArr3, String str2, String str3,
+				String str4, String[] strArr4, String str5, String str6, String str7, String str8, String str9,
+				boolean z, boolean z2, boolean z3) {
 			if (this.Hw == null) {
 				this.Hw = new ArrayList<>();
 			}
 			//添加打包任务
-			this.Hw.add(getTaskWrapper(str, strArr, strArr2, strArr3, str2, str3, str4, strArr4, str5, str6, str7, str8, str9, z, z2, z3));
+			this.Hw.add(getTaskWrapper(str, strArr, strArr2, strArr3, str2, str3, str4, strArr4, str5, str6, str7, str8,
+					str9, z, z2, z3));
 		}
 
-		public abstract TaskWrapper getTaskWrapper(String str, String[] strArr, String[] strArr2, String[] strArr3, String str2, String str3, String str4, String[] strArr4, String str5, String str6, String str7, String str8, String str9, boolean z, boolean z2, boolean z3);
+		public abstract TaskWrapper getTaskWrapper(String str, String[] strArr, String[] strArr2, String[] strArr3,
+				String str2, String str3, String str4, String[] strArr4, String str5, String str6, String str7,
+				String str8, String str9, boolean z, boolean z2, boolean z3);
 
 		public abstract class TaskWrapper extends Task {
 			//class转dex默认输出目录
@@ -1222,7 +1276,6 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			private String outFilePath;
 			// .ap_文件(aapt2 link产物)
 			private String aaptResourcePath;
-
 
 			//项目的jardex默认目录
 			private String defaultJarDexDirPath;
@@ -1261,8 +1314,14 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 			protected final boolean isNotDebugFormAIDE;
 
-			public TaskWrapper(String mainClassCacheDir, String[] classFileRootDirs, String[] sourceDirs, String[] dependencyLibs, String outDirPath, String Zo, String aaptResourcePath, String[] nativeLibDirs, String outFilePath, String signaturePath, String signaturePassword, String signatureAlias, String signatureAliasPassword, boolean buildRefresh, boolean Ws, boolean QX) {
-				super(mainClassCacheDir, classFileRootDirs, sourceDirs, dependencyLibs, outDirPath, Zo, aaptResourcePath, nativeLibDirs, outFilePath, signaturePath, signaturePassword, signatureAlias, signatureAliasPassword, buildRefresh, Ws, QX);
+			public TaskWrapper(String mainClassCacheDir, String[] classFileRootDirs, String[] sourceDirs,
+					String[] dependencyLibs, String outDirPath, String Zo, String aaptResourcePath,
+					String[] nativeLibDirs, String outFilePath, String signaturePath, String signaturePassword,
+					String signatureAlias, String signatureAliasPassword, boolean buildRefresh, boolean Ws,
+					boolean QX) {
+				super(mainClassCacheDir, classFileRootDirs, sourceDirs, dependencyLibs, outDirPath, Zo,
+						aaptResourcePath, nativeLibDirs, outFilePath, signaturePath, signaturePassword, signatureAlias,
+						signatureAliasPassword, buildRefresh, Ws, QX);
 
 				this.mainClassCacheDir = mainClassCacheDir;
 
@@ -1298,8 +1357,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				this.buildRefresh = buildRefresh;
 
 				this.minSdk = this.getProjectMinSdk();
-				this.zipalignLibPath = externalPackagingService.getApplicationInfo().nativeLibraryDir + "/libzipalign.so";
-
+				this.zipalignLibPath = externalPackagingService.getApplicationInfo().nativeLibraryDir
+						+ "/libzipalign.so";
 
 				// GradleProject输出是classesdebug 也没debug-aide
 				this.isNotDebugFormAIDE = !classCacheDirFileName.endsWith("debug");
@@ -1344,18 +1403,20 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 					return singleton;
 				}
 
-				File buildGradleFile = new File(buildOutDirPath.substring(0, buildOutDirPath.length() - suffix.length()), "build.gradle");
+				File buildGradleFile = new File(
+						buildOutDirPath.substring(0, buildOutDirPath.length() - suffix.length()), "build.gradle");
 				if (!buildGradleFile.exists()) {
 					this.zeroAicyBuildGradle = singleton;
-					return singleton;				
+					return singleton;
 				}
 				return this.zeroAicyBuildGradle = singleton.getConfiguration(buildGradleFile.getAbsolutePath());
 			}
 
 			private AndroidManifestParser getAndroidManifestParser() {
 				String buildOutDirPath = getBuildOutDirPath();
-				AndroidManifestParser androidManifestParser = null;  
-				for (String androidManifestAbsolutePath : new String[]{"injected/AndroidManifest.xml","merged/AndroidManifest.xml","../AndroidManifest.xml"}) {
+				AndroidManifestParser androidManifestParser = null;
+				for (String androidManifestAbsolutePath : new String[]{"injected/AndroidManifest.xml",
+						"merged/AndroidManifest.xml", "../AndroidManifest.xml"}) {
 					File androidManifestXmlFile = new File(buildOutDirPath, androidManifestAbsolutePath);
 					if (androidManifestXmlFile.exists()) {
 						androidManifestParser = AndroidManifestParser.get(androidManifestXmlFile);
@@ -1366,9 +1427,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			}
 
 			public boolean isMinifyEnabled() {
-				return this.isNotDebugFormAIDE
-					&& isGradleProject() 
-					&& getZeroAicyBuildGradle().isMinifyEnabled();
+				return this.isNotDebugFormAIDE && isGradleProject() && getZeroAicyBuildGradle().isMinifyEnabled();
 			}
 
 			public boolean isGradleProject() {
@@ -1400,21 +1459,20 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				}
 				return childFile.getAbsolutePath();
 			}
-			
+
 			@Override
 			public final void Mr() {
 				try {
 					packaging();
-				}
-				catch (Throwable e) {
+				} catch (Throwable e) {
 					// 将错误信息保存到日志中
 					AppLog.e("packaging()", e);
 
 					if (e instanceof Error) {
-						throw (Error)e;
+						throw (Error) e;
 					}
 					if (e instanceof RuntimeException) {
-						throw (RuntimeException)e;
+						throw (RuntimeException) e;
 					}
 
 					throw new Error(e);
@@ -1431,7 +1489,6 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			 * d8 class jar 并返回classesDexZip[d8输出zip]
 			 */
 			public abstract List<String> getClassesDexZipList() throws Throwable;
-
 
 			/******************************************/
 			/**
@@ -1450,10 +1507,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				// 不是debug-aide变体 无法简单区分 debug 与 release
 				// 可以从用 sp的ProjectService 但是 sp不能跨进程
 				// 还是算了
-				return isAndroidProject() 
-					&& isMinifyEnabled();
+				return isAndroidProject() && isMinifyEnabled();
 			}
-
 
 			/**
 			 * 是否启用混淆JavaGradle项目
@@ -1463,31 +1518,35 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				// 可以从用 sp的ProjectService 但是 sp不能跨进程
 				// 还是算了
 
-				return this.isJavaGradleProject() 
-					&& this.isMinifyEnabled();
+				return this.isJavaGradleProject() && this.isMinifyEnabled();
 			}
 
 			/**
 			 * 根据isBuildRefresh是否增量
 			 */
-			public void fillClassFileCache(String classCacheRootDirPath, List<String> incrementalClassFiles, Set<String> classFileSet) {
+			public void fillClassFileCache(String classCacheRootDirPath, List<String> incrementalClassFiles,
+					Set<String> classFileSet) {
 				// 规范文件路径信息
 				// bug compile project(':/xxxxx/xxx -> 导致classCacheRootDirPath 为 //xxxxx/xxx
 				classCacheRootDirPath = new File(classCacheRootDirPath).getAbsolutePath();
-				
-				fillClassFileCacheMap(classCacheRootDirPath, new File(classCacheRootDirPath), incrementalClassFiles, classFileSet, this.isBuildRefresh());
+
+				fillClassFileCacheMap(classCacheRootDirPath, new File(classCacheRootDirPath), incrementalClassFiles,
+						classFileSet, this.isBuildRefresh());
 			}
 			/**
 			 * 默认不增量
 			 */
-			public void fillAllClassFileCache(String classCacheRootDirPath, List<String> incrementalClassFiles, Set<String> classFileSet) {
-				fillClassFileCacheMap(classCacheRootDirPath, new File(classCacheRootDirPath), incrementalClassFiles, classFileSet, true);
+			public void fillAllClassFileCache(String classCacheRootDirPath, List<String> incrementalClassFiles,
+					Set<String> classFileSet) {
+				fillClassFileCacheMap(classCacheRootDirPath, new File(classCacheRootDirPath), incrementalClassFiles,
+						classFileSet, true);
 			}
 
 			/**
 			 * 递归填充classCacheRootDirPath目录下的所有class文件
 			 */
-			public void fillClassFileCacheMap(String classCacheRootDirPath, File dirFile, List<String> incrementalClassFiles, Set<String> classFileSet, boolean isBuildRefresh) {
+			public void fillClassFileCacheMap(String classCacheRootDirPath, File dirFile,
+					List<String> incrementalClassFiles, Set<String> classFileSet, boolean isBuildRefresh) {
 				File[] listFiles = dirFile.listFiles();
 				if (listFiles == null) {
 					return;
@@ -1495,7 +1554,8 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 				for (File classFile : listFiles) {
 					if (classFile.isDirectory()) {
-						fillClassFileCacheMap(classCacheRootDirPath, classFile, incrementalClassFiles, classFileSet, isBuildRefresh);
+						fillClassFileCacheMap(classCacheRootDirPath, classFile, incrementalClassFiles, classFileSet,
+								isBuildRefresh);
 						continue;
 					}
 
@@ -1523,10 +1583,10 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 
 						File dexFile = new File(classDexFileCache);
 						// 删除 错误dex
-						if(dexFile.exists() && dexFile.length() == 0){
+						if (dexFile.exists() && dexFile.length() == 0) {
 							dexFile.delete();
 						}
-						
+
 						if (classFile.lastModified() > dexFile.lastModified()) {
 							//需要重新dexing的class
 							incrementalClassFiles.add(classFilePath);
@@ -1578,15 +1638,13 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			public String getDefaultClassDexGlobalsPath() {
 				return getDefaultClassDexCacheDirPath() + "/globals.zip";
 			}
-			
 
 			/**
 			 * 返回class dexing后的dex缓存路径
 			 */
 			public String getClassDexFileCache(String classFileSubPath) {
 				int endIndex = classFileSubPath.length() - ".class".length();
-				return getDefaultClassDexCacheDirPath() 
-					+ classFileSubPath.substring(0, endIndex) + ".dex";
+				return getDefaultClassDexCacheDirPath() + classFileSubPath.substring(0, endIndex) + ".dex";
 			}
 			/**
 			 * 返回jar的dex.zip缓存路径
@@ -1609,7 +1667,7 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				if (jarDexCacheDirPath == null) {
 					jarDexCacheDirPath = getDefaultJarDexDirPath();
 				}
-				return jarDexCacheDirPath + "/" +  jarDexZipName;
+				return jarDexCacheDirPath + "/" + jarDexZipName;
 			}
 
 			/**
@@ -1624,14 +1682,13 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 				/**
 				 * 是否是在自定义仓库缓存文件夹中
 				 */
-				if (!TextUtils.isEmpty(userM2repositories) 
-					&& dependencyLibPath.startsWith(userM2repositories)) {
+				if (!TextUtils.isEmpty(userM2repositories) && dependencyLibPath.startsWith(userM2repositories)) {
 					//指定了minsdk，会污染缓存，所以只能放项目目录
 					key = dependencyLibPath.substring(userM2repositories.length());
 				} else if (dependencyLibPath.startsWith(defaultM2repositoriesDirPath)) {
 					key = dependencyLibPath.substring(defaultM2repositoriesDirPath.length());
 				} else {
-					key = dependencyLibPath;	
+					key = dependencyLibPath;
 				}
 
 				return getIntermediatesChildDirPath("jardex/" + MD5Util.stringMD5(key));
@@ -1687,10 +1744,12 @@ public class ZeroAicyExternalPackagingService extends ExternalPackagingService {
 			 * 显示构建总进度，只有一级进度
 			 */
 			public void showProgress(String progressTitle, int progress) {
-				ExternalPackagingService.ExternalPackagingServiceWorker.v5(PackagingWorkerWrapper.this, progressTitle + "...", progress);
+				ExternalPackagingService.ExternalPackagingServiceWorker.v5(PackagingWorkerWrapper.this,
+						progressTitle + "...", progress);
 				//super.a8(progressTitle, progress);
 			}
 		}
 	}
 
 }
+
