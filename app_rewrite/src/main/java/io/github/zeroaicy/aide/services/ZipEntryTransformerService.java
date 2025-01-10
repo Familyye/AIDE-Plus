@@ -10,57 +10,66 @@ import java.util.zip.ZipInputStream;
 import java.io.BufferedInputStream;
 import java.util.zip.CRC32;
 import java.io.FileNotFoundException;
+import android.text.TextUtils;
 
 public class ZipEntryTransformerService {
-	
-	public static long getFileCRC32(File file) throws IOException{
+
+	public static long getFileCRC32(File file) throws IOException {
 		CRC32 crc = new CRC32();
 		BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
 		byte[] data = new byte[4096];
 		int count;
-		while ( (count = bufferedInputStream.read(data)) > 0 ){
+		while ((count = bufferedInputStream.read(data)) > 0) {
 			crc.update(data, 0, count);
 		}
 		bufferedInputStream.close();
 		return crc.getValue();
 	}
 
-
-	public static String getZipEntryName(File file, String relativeRootDirFilePath){
+	private static String getZipEntryName(File file, String relativeRootDirFilePath, String prefix) {
 		String filePath = file.getAbsolutePath();
 		int index = relativeRootDirFilePath.length();
-		int length =filePath.length();
-		while ( index < length 
-			   && filePath.charAt(index) == '/' ){
-			index ++;
+		int length = filePath.length();
+		while (index < length && filePath.charAt(index) == '/') {
+			index++;
 		}
-		return filePath.substring(index);
+		String zipEntryName = filePath.substring(index);
+
+		if (!TextUtils.isEmpty(prefix)) {
+			zipEntryName = prefix + zipEntryName;
+		}
+
+		return zipEntryName;
 	}
-	
-	public static void packagingDirFile(String relativeRootDirFilePath, File file, ZipEntryTransformer transformer, PackagingStream packagingZipOutput) throws FileNotFoundException, IOException{
-		if ( file.isDirectory() ){
-			if ( file.isHidden() ){
+	public static void packagingDirFile(String relativeRootDirFilePath, File file, ZipEntryTransformer transformer,
+			PackagingStream packagingZipOutput) throws FileNotFoundException, IOException {
+		packagingDirFile(relativeRootDirFilePath, null, file, transformer, packagingZipOutput);
+	}
+
+	public static void packagingDirFile(String relativeRootDirFilePath, String prefix, File file,
+			ZipEntryTransformer transformer, PackagingStream packagingZipOutput)
+			throws FileNotFoundException, IOException {
+		if (file.isDirectory()) {
+			if (file.isHidden()) {
 				return;
 			}
-			for ( File childFile : file.listFiles() ){
-				if ( childFile.isDirectory() && childFile.isHidden() ){
+			for (File childFile : file.listFiles()) {
+				if (childFile.isDirectory() && childFile.isHidden()) {
 					return;
 				}
-				packagingDirFile(relativeRootDirFilePath, childFile, transformer, packagingZipOutput);
+				packagingDirFile(relativeRootDirFilePath, prefix, childFile, transformer, packagingZipOutput);
 			}
 
-		}
-		else{
-			String zipEntryName = getZipEntryName(file, relativeRootDirFilePath);
+		} else {
+			String zipEntryName = getZipEntryName(file, relativeRootDirFilePath, prefix);
 			ZipEntry zipEntry = new ZipEntry(zipEntryName);
-			if ( transformer != null &&
-				(zipEntry = transformer.transformer(zipEntry, packagingZipOutput)) == null ){
+			if (transformer != null && (zipEntry = transformer.transformer(zipEntry, packagingZipOutput)) == null) {
 				//已被转换器过滤
 				return;
 			}
 
 			// 检查是否无压缩模式
-			if ( zipEntry.getMethod() == ZipEntry.STORED ){
+			if (zipEntry.getMethod() == ZipEntry.STORED) {
 				//未压缩时设置未压缩条目数据的CRC-32校验和
 				zipEntry.setCrc(getFileCRC32(file));
 			}
@@ -82,19 +91,20 @@ public class ZipEntryTransformerService {
 	 * 不能添加class文件
 	 * 但是 
 	 */
-	public static void packagingZipFile(String zipFilePath, ZipEntryTransformer transformer, PackagingStream packagingZipOutput, boolean followZipEntryMethod) throws IOException {
-		
+	public static void packagingZipFile(String zipFilePath, ZipEntryTransformer transformer,
+			PackagingStream packagingZipOutput, boolean followZipEntryMethod) throws IOException {
+
 		if (!new File(zipFilePath).exists()) {
 			AppLog.w("Zip file not found: " + zipFilePath);
 			return;
 		}
-		
+
 		ZipInputStream zipFileInput = null;
 		try {
 			zipFileInput = new ZipInputStream(new FileInputStream(zipFilePath));
-			
+
 			ZipEntry originalZipEntry;
-			
+
 			while ((originalZipEntry = zipFileInput.getNextEntry()) != null) {
 				ZipEntry newZipEntry = originalZipEntry;
 
@@ -105,18 +115,17 @@ public class ZipEntryTransformerService {
 						continue;
 					}
 				}
-				if( newZipEntry.isDirectory()){
+				if (newZipEntry.isDirectory()) {
 					// 过滤文件夹
 					continue;
 				}
-				
+
 				// 转换器未修改
 				if (newZipEntry == originalZipEntry) {
 					newZipEntry = new ZipEntry(originalZipEntry.getName());
 				}
 
-				if (followZipEntryMethod 
-					&& originalZipEntry.getMethod() != -1) {
+				if (followZipEntryMethod && originalZipEntry.getMethod() != -1) {
 					newZipEntry.setMethod(originalZipEntry.getMethod());
 				}
 
@@ -126,16 +135,15 @@ public class ZipEntryTransformerService {
 					newZipEntry.setSize(originalZipEntry.getSize());
 				}
 
-
 				packagingZipOutput.putNextEntry(newZipEntry);
-				
+
 				IOUtils.streamTransfer(zipFileInput, packagingZipOutput);
 				//Entry写入完成
 				packagingZipOutput.closeEntry();
 			}
-		}
-		finally {
+		} finally {
 			IOUtils.close(zipFileInput);
 		}
 	}
 }
+
