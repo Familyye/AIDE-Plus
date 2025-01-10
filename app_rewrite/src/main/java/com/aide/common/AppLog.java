@@ -63,6 +63,10 @@ public class AppLog{
     }
 
 	// 警告⚠️不拦截
+
+	public static void w(String msg, Throwable th){
+		Log.e("AIDE", msg, th);
+    }
 	public static void w(String TAG, String msg){
 		Log.w(TAG, msg);
 	}
