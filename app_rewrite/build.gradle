@@ -87,7 +87,9 @@ dependencies {
 	
 	
 	// BC加密库
-	api "org.bouncycastle:bcprov-jdk18on:1.78.1"
+	// api "org.bouncycastle:bcprov-jdk18on:1.79:sources"
+	api "org.bouncycastle:bcprov-jdk18on:1.79"
+	
 	// apk签名
 	api "com.android.tools.build:apksig:8.5.0-alpha07"
 }
