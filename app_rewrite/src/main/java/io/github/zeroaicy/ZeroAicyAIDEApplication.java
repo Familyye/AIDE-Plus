@@ -21,6 +21,7 @@ import io.github.zeroaicy.util.crash.CrashApphandler;
 import io.github.zeroaicy.util.reflect.ReflectPie;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import io.github.zeroaicy.aide.utils.ZeroAicyTermuxShellEnvironment;
 
 public class ZeroAicyAIDEApplication extends AIDEApplication {
 
@@ -57,7 +58,7 @@ public class ZeroAicyAIDEApplication extends AIDEApplication {
 	public void onCreate() {
 		super.onCreate();
 
-		if (isCrashProcess) {
+		if (ZeroAicyAIDEApplication.isCrashProcess) {
 			return;
 		}
 		
@@ -68,7 +69,9 @@ public class ZeroAicyAIDEApplication extends AIDEApplication {
 
 		// 更改日志路径
 		DebugUtil.debug(this, false);
-
+		
+		ZeroAicyTermuxShellEnvironment.init(this);
+		
 		// method2();
 
 		try {
