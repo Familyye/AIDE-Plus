@@ -29,6 +29,10 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import java.util.HashMap;
+import com.aide.ui.views.CodeEditText.EditorView;
+import io.github.zeroaicy.aide.ui.views.CodeEditText;
+import com.aide.ui.views.editor.SelectedRegion;
+import java.io.StringReader;
 
 /**
  * 代码格式化
@@ -95,7 +99,7 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 			startLine = 1;
 		}
 		ServiceContainer.getEngineService().Hw(ServiceContainer.getOpenFileService().getVisibleFile(), startLine,
-				endLine, ServiceContainer.getMainActivity().getAIDEEditorPager().getTabSize());
+											   endLine, ServiceContainer.getMainActivity().getAIDEEditorPager().getTabSize());
 		return true;
 	}
 
@@ -119,7 +123,8 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 						format(editorModel);
 					}
 				}
-			} catch (Throwable e) {
+			}
+			catch (Throwable e) {
 				AppLog.e("Format Code", e);
 			}
 
@@ -127,7 +132,7 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 
 		// 防止污染 defaultSettingsMap
 		private static final Map<String, String> defaultSettingsMap = DefaultCodeFormatterOptions.getDefaultSettings()
-				.getMap();
+		.getMap();
 
 		private void format(AIDEEditor.t editorModel) throws MalformedTreeException, BadLocationException {
 			EditorModel.h h = editorModel.pN(null);
@@ -146,7 +151,7 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 
 			// 修改增量 基于 charArray offset
 			TextEdit edit = codeFormatter.format(kind, inputText, 0, inputText.length(), indentationLevel,
-					lineSeparator);
+												 lineSeparator);
 			if (edit == null) {
 				return;
 			}
@@ -186,7 +191,22 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 					int endColumn = editorModel.getColumnCount(endLine);
 
 					// 替换 行列皆以 1开始
-					editorModel.cb(startLine, startColumn, endLine + 1, endColumn + 1, outputText, false, true);
+					// editorModel.cb(startLine, startColumn, endLine + 1, endColumn + 1, outputText, false, true);
+
+					/*
+
+					 */
+					AIDEEditor.EditorView editorView = AIDEEditorExtend.getEditorView(this.currentEditor);
+					
+					this.currentEditor.getKeyStrokeDetector().U2();
+					
+					int caretLine = editorView.getCaretLine();
+					int caretColumn = editorView.getCaretColumn();
+					
+					editorModel.Bx(new SelectedRegion(0, 0, endLine - 1, endColumn - 1), editorModel);
+					editorModel.a5(0, 0, new StringReader(outputText), editorModel);
+				
+					editorView.TI(caretColumn, caretLine);
 				}
 			}
 		}
