@@ -27,6 +27,9 @@ dependencies {
 	
 	runtimeOnly fileTree(dir: 'runtime', include: ['*.jar'])
 	
+	// 打包资源
+	runtimeOnly fileTree(dir: 'resources', include: ['*.jar'])
+	
 	//api "com.google.android.material:material:+"
 	//api project(':material+')
 	//compile "com.android.tools:r8:+"
