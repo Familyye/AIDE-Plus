@@ -49,7 +49,10 @@ public class CompilationUnitDeclarationResolver2 extends org.eclipse.jdt.interna
 		try{
 			// resolve
 			resolve2(unit);			
-		}catch(Throwable e){
+		}catch(AbortCompilation e){
+			// AbortCompilation 忽略
+		}
+		catch(Throwable e){
 			AppLog.e("CompilationUnitDeclarationResolver2", "resolve", e);
 		}
 
