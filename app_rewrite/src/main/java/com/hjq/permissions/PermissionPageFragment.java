@@ -2,10 +2,9 @@ package com.hjq.permissions;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,20 +24,24 @@ public final class PermissionPageFragment extends Fragment implements Runnable {
     /**
      * 开启权限申请
      */
-    public static void beginRequest(Activity activity, ArrayList<String> permissions,
-                                    OnPermissionPageCallback callback) {
+    public static void launch( Activity activity,  List<String> permissions,
+                                 OnPermissionPageCallback callback) {
         PermissionPageFragment fragment = new PermissionPageFragment();
         Bundle bundle = new Bundle();
-        bundle.putStringArrayList(REQUEST_PERMISSIONS, permissions);
+        if (permissions instanceof ArrayList) {
+            bundle.putStringArrayList(REQUEST_PERMISSIONS, (ArrayList<String>) permissions);
+        } else {
+            bundle.putStringArrayList(REQUEST_PERMISSIONS, new ArrayList<>(permissions));
+        }
         fragment.setArguments(bundle);
         // 设置保留实例，不会因为屏幕方向或配置变化而重新创建
         fragment.setRetainInstance(true);
         // 设置权限申请标记
         fragment.setRequestFlag(true);
         // 设置权限回调监听
-        fragment.setCallBack(callback);
+        fragment.setOnPermissionPageCallback(callback);
         // 绑定到 Activity 上面
-        fragment.attachActivity(activity);
+        fragment.attachByActivity(activity);
     }
 
     /** 权限回调对象 */
@@ -54,21 +57,29 @@ public final class PermissionPageFragment extends Fragment implements Runnable {
     /**
      * 绑定 Activity
      */
-    public void attachActivity(Activity activity) {
-        activity.getFragmentManager().beginTransaction().add(this, this.toString()).commitAllowingStateLoss();
+    public void attachByActivity( Activity activity) {
+        FragmentManager fragmentManager = activity.getFragmentManager();
+        if (fragmentManager == null) {
+            return;
+        }
+        fragmentManager.beginTransaction().add(this, this.toString()).commitAllowingStateLoss();
     }
 
     /**
      * 解绑 Activity
      */
-    public void detachActivity(Activity activity) {
-        activity.getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
+    public void detachByActivity( Activity activity) {
+        FragmentManager fragmentManager = activity.getFragmentManager();
+        if (fragmentManager == null) {
+            return;
+        }
+        fragmentManager.beginTransaction().remove(this).commitAllowingStateLoss();
     }
 
     /**
      * 设置权限监听回调监听
      */
-    public void setCallBack(OnPermissionPageCallback callback) {
+    public void setOnPermissionPageCallback( OnPermissionPageCallback callback) {
         mCallBack = callback;
     }
 
@@ -85,7 +96,7 @@ public final class PermissionPageFragment extends Fragment implements Runnable {
 
         // 如果当前 Fragment 是通过系统重启应用触发的，则不进行权限申请
         if (!mRequestFlag) {
-            detachActivity(getActivity());
+            detachByActivity(getActivity());
             return;
         }
 
@@ -101,11 +112,11 @@ public final class PermissionPageFragment extends Fragment implements Runnable {
             return;
         }
         List<String> permissions = arguments.getStringArrayList(REQUEST_PERMISSIONS);
-        startActivityForResult(PermissionUtils.getSmartPermissionIntent(getActivity(), permissions), XXPermissions.REQUEST_CODE);
+        StartActivityManager.startActivityForResult(this, PermissionApi.getSmartPermissionIntent(getActivity(), permissions), XXPermissions.REQUEST_CODE);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode,  Intent data) {
         if (requestCode != XXPermissions.REQUEST_CODE) {
             return;
         }
@@ -141,12 +152,16 @@ public final class PermissionPageFragment extends Fragment implements Runnable {
         mCallBack = null;
 
         if (callback == null) {
-            detachActivity(activity);
+            detachByActivity(activity);
             return;
         }
 
         Bundle arguments = getArguments();
+
         List<String> allPermissions = arguments.getStringArrayList(REQUEST_PERMISSIONS);
+        if (allPermissions == null || allPermissions.isEmpty()) {
+            return;
+        }
 
         List<String> grantedPermissions = PermissionApi.getGrantedPermissions(activity, allPermissions);
         if (grantedPermissions.size() == allPermissions.size()) {
@@ -155,6 +170,6 @@ public final class PermissionPageFragment extends Fragment implements Runnable {
             callback.onDenied();
         }
 
-        detachActivity(activity);
+        detachByActivity(activity);
     }
 }

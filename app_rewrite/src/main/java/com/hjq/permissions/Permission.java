@@ -94,10 +94,15 @@ public final class Permission {
     /** VPN 权限（特殊权限，Android 4.0 新增的权限，注意此权限不需要在清单文件中注册也能申请） */
     public static final String BIND_VPN_SERVICE = "android.permission.BIND_VPN_SERVICE";
 
-    /** 通知栏权限（特殊权限，注意此权限不需要在清单文件中注册也能申请） */
+    /** 通知栏权限（特殊权限，只有 Android 4.4 及以上设备才能判断到权限状态，注意此权限不需要在清单文件中注册也能申请） */
     public static final String NOTIFICATION_SERVICE = "android.permission.NOTIFICATION_SERVICE";
 
     /* ------------------------------------ 我是一条华丽的分割线 ------------------------------------ */
+
+    /**
+     * 授予对照片和视频的部分访问权限（Android 14.0 新增的权限）
+     */
+    public static final String READ_MEDIA_VISUAL_USER_SELECTED = "android.permission.READ_MEDIA_VISUAL_USER_SELECTED";
 
     /**
      * 发送通知权限（Android 13.0 新增的权限）
@@ -114,7 +119,7 @@ public final class Permission {
      * <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
      *
      * 为了兼容 Android 13 以下版本，需要清单文件中注册 {@link #ACCESS_FINE_LOCATION} 权限
-     * 还有 Android 13 以下设备，使用 WIFI 需要精确定位权限，框架会自动在旧的安卓设备上自动添加此权限进行动态申请
+     * 还有 Android 13 以下设备，使用 WIFI 需要 {@link #ACCESS_FINE_LOCATION} 权限，框架会自动在旧的安卓设备上自动添加此权限进行动态申请
      */
     public static final String NEARBY_WIFI_DEVICES = "android.permission.NEARBY_WIFI_DEVICES";
 
@@ -130,21 +135,21 @@ public final class Permission {
     /**
      * 读取图片权限（Android 13.0 新增的权限）
      *
-     * 为了兼容 Android 13 以下版本，需要在清单文件中注册 {@link #READ_EXTERNAL_STORAGE} {@link #WRITE_EXTERNAL_STORAGE} 权限
+     * 为了兼容 Android 13 以下版本，需要在清单文件中注册 {@link #READ_EXTERNAL_STORAGE} 权限
      */
     public static final String READ_MEDIA_IMAGES = "android.permission.READ_MEDIA_IMAGES";
 
     /**
      * 读取视频权限（Android 13.0 新增的权限）
      *
-     * 为了兼容 Android 13 以下版本，需要在清单文件中注册 {@link #READ_EXTERNAL_STORAGE} {@link #WRITE_EXTERNAL_STORAGE} 权限
+     * 为了兼容 Android 13 以下版本，需要在清单文件中注册 {@link #READ_EXTERNAL_STORAGE} 权限
      */
     public static final String READ_MEDIA_VIDEO = "android.permission.READ_MEDIA_VIDEO";
 
     /**
      * 读取音频权限（Android 13.0 新增的权限）
      *
-     * 为了兼容 Android 13 以下版本，需要在清单文件中注册 {@link #READ_EXTERNAL_STORAGE} {@link #WRITE_EXTERNAL_STORAGE} 权限
+     * 为了兼容 Android 13 以下版本，需要在清单文件中注册 {@link #READ_EXTERNAL_STORAGE} 权限
      */
     public static final String READ_MEDIA_AUDIO = "android.permission.READ_MEDIA_AUDIO";
 
@@ -156,7 +161,7 @@ public final class Permission {
      * <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
      *
      * 为了兼容 Android 12 以下版本，需要清单文件中注册 {@link Manifest.permission#BLUETOOTH_ADMIN} 权限
-     * 还有 Android 12 以下设备，获取蓝牙扫描结果需要精确定位权限，框架会自动在旧的安卓设备上自动添加此权限进行动态申请
+     * 还有 Android 12 以下设备，获取蓝牙扫描结果需要 {@link #ACCESS_FINE_LOCATION} 权限，框架会自动在旧的安卓设备上自动添加此权限进行动态申请
      */
     public static final String BLUETOOTH_SCAN = "android.permission.BLUETOOTH_SCAN";
 
@@ -313,24 +318,24 @@ public final class Permission {
 
         /** 存储权限 */
         public static final String[] STORAGE = new String[] {
-                Permission.READ_EXTERNAL_STORAGE,
-                Permission.WRITE_EXTERNAL_STORAGE};
+            Permission.READ_EXTERNAL_STORAGE,
+            Permission.WRITE_EXTERNAL_STORAGE};
 
         /** 日历权限 */
         public static final String[] CALENDAR = new String[] {
-                Permission.READ_CALENDAR,
-                Permission.WRITE_CALENDAR};
+            Permission.READ_CALENDAR,
+            Permission.WRITE_CALENDAR};
 
         /** 联系人权限 */
         public static final String[] CONTACTS = new String[] {
-                Permission.READ_CONTACTS,
-                Permission.WRITE_CONTACTS,
-                Permission.GET_ACCOUNTS};
+            Permission.READ_CONTACTS,
+            Permission.WRITE_CONTACTS,
+            Permission.GET_ACCOUNTS};
 
         /** 蓝牙权限 */
         public static final String[] BLUETOOTH = new String[] {
-                Permission.BLUETOOTH_SCAN,
-                Permission.BLUETOOTH_CONNECT,
-                Permission.BLUETOOTH_ADVERTISE};
+            Permission.BLUETOOTH_SCAN,
+            Permission.BLUETOOTH_CONNECT,
+            Permission.BLUETOOTH_ADVERTISE};
     }
 }

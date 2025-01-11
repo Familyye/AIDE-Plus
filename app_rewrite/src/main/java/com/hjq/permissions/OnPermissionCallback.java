@@ -1,7 +1,6 @@
 package com.hjq.permissions;
 
 
-
 import java.util.List;
 
 /**
@@ -18,7 +17,7 @@ public interface OnPermissionCallback {
      * @param permissions           请求成功的权限组
      * @param allGranted            是否全部授予了
      */
-    void onGranted(List<String> permissions, boolean allGranted);
+    void onGranted( List<String> permissions, boolean allGranted);
 
     /**
      * 有权限被拒绝授予时回调
@@ -26,5 +25,5 @@ public interface OnPermissionCallback {
      * @param permissions            请求失败的权限组
      * @param doNotAskAgain          是否勾选了不再询问选项
      */
-    void onDenied(List<String> permissions, boolean doNotAskAgain);
+    default void onDenied( List<String> permissions, boolean doNotAskAgain) {}
 }

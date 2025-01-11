@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Environment;
 import android.provider.Settings;
 
-
-
 /**
  *    author : Android 轮子哥
  *    github : https://github.com/getActivity/XXPermissions
@@ -16,51 +14,80 @@ import android.provider.Settings;
  */
 class PermissionDelegateImplV30 extends PermissionDelegateImplV29 {
 
-   @Override
-   public boolean isGrantedPermission(Context context, String permission) {
-      if (PermissionUtils.equalsPermission(permission, Permission.MANAGE_EXTERNAL_STORAGE)) {
-         return isGrantedManageStoragePermission();
-      }
-      return super.isGrantedPermission(context, permission);
-   }
+    @Override
+    public boolean isGrantedPermission( Context context,  String permission) {
+        if (PermissionUtils.equalsPermission(permission, Permission.MANAGE_EXTERNAL_STORAGE)) {
+            if (!AndroidVersion.isAndroid6()) {
+                return true;
+            }
+            if (!AndroidVersion.isAndroid11()) {
+                // 这个是 Android 10 上面的历史遗留问题，假设申请的是 MANAGE_EXTERNAL_STORAGE 权限
+                // 必须要在 AndroidManifest.xml 中注册 android:requestLegacyExternalStorage="true"
+                if (AndroidVersion.isAndroid10() && !isUseDeprecationExternalStorage()) {
+                    return false;
+                }
+                return PermissionUtils.checkSelfPermission(context, Permission.READ_EXTERNAL_STORAGE) &&
+                    PermissionUtils.checkSelfPermission(context, Permission.WRITE_EXTERNAL_STORAGE);
+            }
+            return isGrantedManageStoragePermission();
+        }
 
-   @Override
-   public boolean isPermissionPermanentDenied(Activity activity, String permission) {
-      if (PermissionUtils.equalsPermission(permission, Permission.MANAGE_EXTERNAL_STORAGE)) {
-         return false;
-      }
-      return super.isPermissionPermanentDenied(activity, permission);
-   }
+        return super.isGrantedPermission(context, permission);
+    }
 
-   @Override
-   public Intent getPermissionIntent(Context context, String permission) {
-      if (PermissionUtils.equalsPermission(permission, Permission.MANAGE_EXTERNAL_STORAGE)) {
-         return getManageStoragePermissionIntent(context);
-      }
-      return super.getPermissionIntent(context, permission);
-   }
+    @Override
+    public boolean isDoNotAskAgainPermission( Activity activity,  String permission) {
+        if (PermissionUtils.equalsPermission(permission, Permission.MANAGE_EXTERNAL_STORAGE)) {
+            return false;
+        }
 
-   /**
-    * 是否有所有文件的管理权限
-    */
-   private static boolean isGrantedManageStoragePermission() {
-      return Environment.isExternalStorageManager();
-   }
+        return super.isDoNotAskAgainPermission(activity, permission);
+    }
 
-   /**
-    * 获取所有文件的管理权限设置界面意图
-    */
-   private static Intent getManageStoragePermissionIntent(Context context) {
-      Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-      intent.setData(PermissionUtils.getPackageNameUri(context));
+    @Override
+    public Intent getPermissionSettingIntent( Context context,  String permission) {
+        if (PermissionUtils.equalsPermission(permission, Permission.MANAGE_EXTERNAL_STORAGE)) {
+            if (!AndroidVersion.isAndroid11()) {
+                return getApplicationDetailsIntent(context);
+            }
+            return getManageStoragePermissionIntent(context);
+        }
 
-      if (!PermissionUtils.areActivityIntent(context, intent)) {
-         intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-      }
+        return super.getPermissionSettingIntent(context, permission);
+    }
 
-      if (!PermissionUtils.areActivityIntent(context, intent)) {
-         intent = PermissionUtils.getApplicationDetailsIntent(context);
-      }
-      return intent;
-   }
+    /**
+     * 是否有所有文件的管理权限
+     */
+    // @RequiresApi(AndroidVersion.ANDROID_11)
+    private static boolean isGrantedManageStoragePermission() {
+        return Environment.isExternalStorageManager();
+    }
+
+    /**
+     * 获取所有文件的管理权限设置界面意图
+     */
+    // @RequiresApi(AndroidVersion.ANDROID_11)
+    private static Intent getManageStoragePermissionIntent( Context context) {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+        intent.setData(PermissionUtils.getPackageNameUri(context));
+
+        if (!PermissionUtils.areActivityIntent(context, intent)) {
+            intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+        }
+
+        if (!PermissionUtils.areActivityIntent(context, intent)) {
+            intent = getApplicationDetailsIntent(context);
+        }
+        return intent;
+    }
+
+    /**
+     * 是否采用的是非分区存储的模式
+     */
+    // @RequiresApi(AndroidVersion.ANDROID_10)
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean isUseDeprecationExternalStorage() {
+        return Environment.isExternalStorageLegacy();
+    }
 }

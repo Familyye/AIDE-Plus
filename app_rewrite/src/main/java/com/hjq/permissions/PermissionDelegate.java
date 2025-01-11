@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-
 /**
  *    author : Android 轮子哥
  *    github : https://github.com/getActivity/XXPermissions
@@ -13,18 +12,23 @@ import android.content.Intent;
  */
 public interface PermissionDelegate {
 
-   /**
-    * 判断某个权限是否授予了
-    */
-   boolean isGrantedPermission(Context context, String permission);
+    /**
+     * 判断某个权限是否授予了
+     */
+    boolean isGrantedPermission(Context context, String permission);
 
-   /**
-    * 判断某个权限是否永久拒绝了
-    */
-   boolean isPermissionPermanentDenied(Activity activity, String permission);
+    /**
+     * 判断某个权限是否勾选了不再询问
+     */
+    boolean isDoNotAskAgainPermission(Activity activity, String permission);
 
-   /**
-    * 获取权限设置页的意图
-    */
-   Intent getPermissionIntent(Context context, String permission);
+    /**
+     * 重新检查权限回调的结果
+     */
+    boolean recheckPermissionResult(Context context, String permission, boolean grantResult);
+
+    /**
+     * 获取权限设置页的意图
+     */
+    Intent getPermissionSettingIntent(Context context, String permission);
 }

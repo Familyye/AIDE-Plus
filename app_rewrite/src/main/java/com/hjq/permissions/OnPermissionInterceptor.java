@@ -2,7 +2,6 @@ package com.hjq.permissions;
 
 import android.app.Activity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,7 +10,7 @@ import java.util.List;
  *    time   : 2020/12/26
  *    desc   : 权限请求拦截器
  */
-public interface IPermissionInterceptor {
+public interface OnPermissionInterceptor {
 
     /**
      * 发起权限申请（可在此处先弹 Dialog 再申请权限，如果用户已经授予权限，则不会触发此回调）
@@ -19,10 +18,10 @@ public interface IPermissionInterceptor {
      * @param allPermissions            申请的权限
      * @param callback                  权限申请回调
      */
-    /*default*/ void launchPermissionRequest(Activity activity, List<String> allPermissions,
-                                         OnPermissionCallback callback);/* {
-        PermissionFragment.launch(activity, new ArrayList<>(allPermissions), this, callback);
-    }*/
+    default void launchPermissionRequest( Activity activity,  List<String> allPermissions,
+                                             OnPermissionCallback callback) {
+        PermissionFragment.launch(activity, allPermissions, this, callback);
+    }
 
     /**
      * 用户授予了权限（注意需要在此处回调 {@link OnPermissionCallback#onGranted(List, boolean)}）
@@ -32,14 +31,14 @@ public interface IPermissionInterceptor {
      * @param allGranted                 是否全部授予
      * @param callback                   权限申请回调
      */
-    /*default*/ void grantedPermissionRequest(Activity activity, List<String> allPermissions,
-                                          List<String> grantedPermissions, boolean allGranted,
-                                          OnPermissionCallback callback);/* {
+    default void grantedPermissionRequest( Activity activity,  List<String> allPermissions,
+                                             List<String> grantedPermissions, boolean allGranted,
+                                             OnPermissionCallback callback) {
         if (callback == null) {
             return;
         }
         callback.onGranted(grantedPermissions, allGranted);
-    }*/
+    }
 
     /**
      * 用户拒绝了权限（注意需要在此处回调 {@link OnPermissionCallback#onDenied(List, boolean)}）
@@ -49,14 +48,14 @@ public interface IPermissionInterceptor {
      * @param doNotAskAgain             是否勾选了不再询问选项
      * @param callback                  权限申请回调
      */
-    /*default*/ void deniedPermissionRequest(Activity activity, List<String> allPermissions,
-                                         List<String> deniedPermissions, boolean doNotAskAgain,
-                                         OnPermissionCallback callback);/* {
+    default void deniedPermissionRequest( Activity activity,  List<String> allPermissions,
+                                             List<String> deniedPermissions, boolean doNotAskAgain,
+                                             OnPermissionCallback callback) {
         if (callback == null) {
             return;
         }
         callback.onDenied(deniedPermissions, doNotAskAgain);
-    }*/
+    }
 
 
     /**
@@ -66,6 +65,6 @@ public interface IPermissionInterceptor {
      * @param skipRequest               是否跳过了申请过程
      * @param callback                  权限申请回调
      */
-    /*default*/ void finishPermissionRequest(Activity activity, List<String> allPermissions,
-                                         boolean skipRequest, OnPermissionCallback callback);// {}
+    default void finishPermissionRequest( Activity activity,  List<String> allPermissions,
+                                            boolean skipRequest,  OnPermissionCallback callback) {}
 }
