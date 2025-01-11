@@ -103,10 +103,10 @@ final class PhoneRomUtils {
 //         int semPlatformVersion = semPlatformIntField.getInt(null);
 //         return semPlatformVersion >= 100000;
 //      } catch (NoSuchFieldException  e) {
-//         e.printStackTrace();
+//         // e.printStackTrace();
 //         return false;
 //      } catch (IllegalAccessException e) {
-//         e.printStackTrace();
+//         // e.printStackTrace();
 //         return false;
 //      }
     }
@@ -124,7 +124,7 @@ final class PhoneRomUtils {
             Object osBrand = buildExClass.getMethod("getOsBrand").invoke(buildExClass);
             return "Harmony".equalsIgnoreCase(String.valueOf(osBrand));
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            // throwabl// e.printStackTrace();
             return false;
         }
     }
@@ -151,13 +151,13 @@ final class PhoneRomUtils {
             Method getBooleanMethod = clazz.getMethod("getBoolean", String.class, boolean.class);
             return Boolean.parseBoolean(String.valueOf(getBooleanMethod.invoke(clazz, "persist.sys.miui_optimization", !"1".equals(ctsValue))));
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return true;
     }
@@ -278,13 +278,13 @@ final class PhoneRomUtils {
                 return ret;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    // e.printStackTrace();
                 }
             }
         }
@@ -301,9 +301,9 @@ final class PhoneRomUtils {
             return prop.getProperty(key, "");
         } catch (FileNotFoundException e) {
             // java.io.FileNotFoundException: /system/build.prop (Permission denied)
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return "";
     }
@@ -315,13 +315,13 @@ final class PhoneRomUtils {
             Method getMethod = clz.getMethod("get", String.class, String.class);
             return (String) getMethod.invoke(clz, key, "");
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return "";
     }
