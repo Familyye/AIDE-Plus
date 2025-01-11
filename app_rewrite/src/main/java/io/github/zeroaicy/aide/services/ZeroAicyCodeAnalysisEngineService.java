@@ -28,7 +28,7 @@ public class ZeroAicyCodeAnalysisEngineService extends CodeAnalysisEngineService
 		// 初始化 App
 		ServiceContainer.setContext(getApplicationContext());
 		
-		setNotificationAndForeground();
+		// setNotificationAndForeground();
 
 		AppLog.d(TAG, "onCreate");
 	}
@@ -87,6 +87,7 @@ public class ZeroAicyCodeAnalysisEngineService extends CodeAnalysisEngineService
 				this.notification = builder.build();
 
 				//startForeground服务前台化，要在5秒内调用成功，否则前台化失败
+				
 				startForeground(id, notification);
 
 			}
