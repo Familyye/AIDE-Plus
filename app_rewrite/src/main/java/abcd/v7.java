@@ -79,8 +79,6 @@ public class v7 {
 						XmlCompletionUtils.initAndroidSDK(ContextUtil.getContext());
 					}
 				});
-			AppLog.println_e("<init>");
-
 		}
     }
 
