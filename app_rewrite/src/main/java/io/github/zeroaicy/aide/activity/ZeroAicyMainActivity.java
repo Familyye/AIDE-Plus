@@ -58,9 +58,8 @@ import android.view.Display;
 
 public class ZeroAicyMainActivity extends MainActivity {
 
-
 	// 用于通知AIDE CodeModel
-	@SuppressWarnings("unused") 
+	@SuppressWarnings("unused")
 	private static final String TAG_1595554556 = "ZeroAicyMainActivity";
 
 	private static final String TAG = "ZeroAicyMainActivity";
@@ -117,12 +116,12 @@ public class ZeroAicyMainActivity extends MainActivity {
 	@Override
 	protected void onDestroy() {
 
-//		//  Trying to restart engine service
-//		// ServiceContainer.shutdown()
-//		EngineService engineService = ServiceContainer.getEngineService();
-//		// 
-//		engineService.lp();
-//		
+		//		//  Trying to restart engine service
+		//		// ServiceContainer.shutdown()
+		//		EngineService engineService = ServiceContainer.getEngineService();
+		//		// 
+		//		engineService.lp();
+		//		
 		super.onDestroy();
 		exit();
 	}
@@ -137,13 +136,11 @@ public class ZeroAicyMainActivity extends MainActivity {
 
 	}
 
-
 	/**
 	 * 是否启用DrawerLayout
 	 */
 	private boolean enableActionDrawerLayout() {
-		return !ServiceContainer.isTrainerMode() 
-			&& ZeroAicySetting.enableActionDrawerLayout();
+		return !ServiceContainer.isTrainerMode() && ZeroAicySetting.enableActionDrawerLayout();
 	}
 
 	public void q7Async() {
@@ -154,40 +151,38 @@ public class ZeroAicyMainActivity extends MainActivity {
 	public void q7() {
 		// -> Jl() -> com.aide.ui.m::FH
 		// -> ImageView.setVisibility
-		runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-					q7Async();
-				}
-			});
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				q7Async();
+			}
+		});
 	}
-
 
 	public void DWAsync() {
 		super.DW();
 	}
 	@Override
 	public void DW() {
-		runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-					DWAsync();
-				}
-			});
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				DWAsync();
+			}
+		});
 	}
-
 
 	public void eUAsync() {
 		super.eU();
 	}
 	@Override
 	public void eU() {
-		runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-					eUAsync();
-				}
-			});
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				eUAsync();
+			}
+		});
 	}
 
 	// 必须在主线程
@@ -197,12 +192,12 @@ public class ZeroAicyMainActivity extends MainActivity {
 			super.Hw(string);
 			return;
 		}
-		runOnUiThread(new Runnable(){
-				@Override
-				public void run() {
-					HwAsync(string);
-				}
-			});
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				HwAsync(string);
+			}
+		});
 	}
 	public void HwAsync(String string) {
 		super.Hw(string);
@@ -219,11 +214,10 @@ public class ZeroAicyMainActivity extends MainActivity {
 				mDrawerLayout.openDrawer(Gravity.LEFT);
 			}
 		} else {
-			super.Nh();			
+			super.Nh();
 		}
 	}
 	//*/
-
 
 	@Override
 	public void setContentView(int layoutResID) {
@@ -255,35 +249,32 @@ public class ZeroAicyMainActivity extends MainActivity {
 
 		this.getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        this.mDrawerToggle =
-			new ActionBarDrawerToggle(this,
-									  mDrawerLayout,
-									  // R.drawable.ic_drawer,
-									  R.string.app_name,
-									  R.string.app_name);
+		this.mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+				// R.drawable.ic_drawer,
+				R.string.app_name, R.string.app_name);
 		this.mDrawerLayout.addDrawerListener(mDrawerToggle);
-        this.mDrawerToggle.syncState();
+		this.mDrawerToggle.syncState();
 
-		this.mDrawerLayout.setOnTouchListener(new View.OnTouchListener(){
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					if (event.getAction() == MotionEvent.ACTION_DOWN)
-						mDrawerLayout.close();
-					return true;
-				}
-			});
+		this.mDrawerLayout.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN)
+					mDrawerLayout.close();
+				return true;
+			}
+		});
 
-		this.mDrawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener(){
-				@Override
-				public void onDrawerClosed(View view) {
-					mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+		this.mDrawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+			@Override
+			public void onDrawerClosed(View view) {
+				mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
-				}
-				@Override
-				public void onDrawerOpened(View view) {
-					mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
-				}
-			});
+			}
+			@Override
+			public void onDrawerOpened(View view) {
+				mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+			}
+		});
 
 		SplitView splitView = getSplitView();
 		if (splitView instanceof ZeroAicySplitView) {
@@ -292,130 +283,135 @@ public class ZeroAicyMainActivity extends MainActivity {
 			zeroAicySplitView.closeSplit(false);
 
 			// SplitView事件拦截器
-			zeroAicySplitView.setOnSplitInterceptListener(new ZeroAicySplitView.OnSplitInterceptListener(){
-					@Override
-					public boolean closeSplit(boolean animator, Runnable animatorListenerAdapterRunable) {
-						return true;
-					}
-					@Override
-					public boolean openSplit(boolean isHorizontal, boolean animator) {
-						mDrawerLayout.openDrawer(Gravity.LEFT);
-						return true;
-					}
-				});
+			zeroAicySplitView.setOnSplitInterceptListener(new ZeroAicySplitView.OnSplitInterceptListener() {
+				@Override
+				public boolean closeSplit(boolean animator, Runnable animatorListenerAdapterRunable) {
+					return true;
+				}
+				@Override
+				public boolean openSplit(boolean isHorizontal, boolean animator) {
+					mDrawerLayout.openDrawer(Gravity.LEFT);
+					return true;
+				}
+			});
 		}
 	}
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menuItem) {
-		if (menuItem.getItemId() == android.R.id.home 
-			&& this.mDrawerToggle != null 
-			&& this.mDrawerToggle.onOptionsItemSelected(menuItem)) {
+		if (menuItem.getItemId() == android.R.id.home && this.mDrawerToggle != null
+				&& this.mDrawerToggle.onOptionsItemSelected(menuItem)) {
 			Nh();
-            return true;
-        } else if (handleOptionsItemSelected(menuItem)) {
-            return true;
-        } else {
-            return super.onOptionsItemSelected(menuItem);
-        }
+			return true;
+		} else if (handleOptionsItemSelected(menuItem)) {
+			return true;
+		} else {
+			return super.onOptionsItemSelected(menuItem);
+		}
 
 	}
-
-
-
 
 	/**
 	 * 显示授权请求弹窗
 	 */
 	public void showRequestManageExternalStorage() {
+
 		if (XXPermissions.isGranted(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
 			return;
 		}
+
 		String app_name = getString(R.string.app_name);
-		String message = new StringBuilder("为了访问您设备上的文件，您需要手动为")
-			.append(app_name)
-			.append("授予「所有文件访问」权限，点击确认后进入设置界面，选择「")
-			.append(app_name)
-			.append("」并开启授权。")
-			.toString();
-		new AlertDialog.Builder(ZeroAicyMainActivity.this)
-			.setTitle("授权请求")
-			.setMessage(message)
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					requestManageExternalStorage();
-				}
-			})
-			.show();
+		String message = new StringBuilder("为了访问您设备上的文件，您需要手动为").append(app_name).append("授予「所有文件访问」权限，点击确认后进入设置界面，选择「")
+				.append(app_name).append("」并开启授权。").toString();
+
+		new AlertDialog.Builder(ZeroAicyMainActivity.this).setTitle("授权请求").setMessage(message)
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						requestManageExternalStorage();
+					}
+				}).show();
 	}
 
 	/**
 	 * 申请 所有文件访问权限
 	 */
 	public void requestManageExternalStorage() {
-		XXPermissions.with(this).
-			permission(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
-			.request(new OnPermissionCallback(){
-				public void onDenied(List<String> permissions, boolean doNotAskAgain) {
-					showRequestManageExternalStorage();
-				}
-				@Override
-				public void onGranted(List<String> list, boolean p) {}
-			});
+		XXPermissions.with(this).permission(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+				.request(new OnPermissionCallback() {
+					public void onDenied(List<String> permissions, boolean doNotAskAgain) {
+						showRequestManageExternalStorage();
+					}
+					@Override
+					public void onGranted(List<String> list, boolean p) {
+					}
+				});
+	}
+
+	/**
+	 * 安卓11 WRITE_EXTERNAL_STORAGE 
+	 */
+	@Override
+	public boolean isSelfPermission(String permission) {
+		if (android.Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+				return super.isSelfPermission(permission);
+			}
+			// 安卓11 
+			// android.permission.WRITE_EXTERNAL_STORAGE -> android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
+			return XXPermissions.isGranted(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+		}
+
+		return super.isSelfPermission(permission);
 	}
 
 	@Override
 	public void setHasEmbeddedTabs() {
 		//ServiceContainer.Mz() && AndroidHelper.u7(this) <= 610.0f
-		AndroidHelper.setActionBarHasEmbeddedTabs(this, ZeroAicySetting.enableActionBarSpinner() 
-												  || (ServiceContainer.isTrainerMode() 
-												  && AndroidHelper.getScreenWidthInDp(this) <= 610.0f));
+		AndroidHelper.setActionBarHasEmbeddedTabs(this, ZeroAicySetting.enableActionBarSpinner()
+				|| (ServiceContainer.isTrainerMode() && AndroidHelper.getScreenWidthInDp(this) <= 610.0f));
 		//绑定监听器
 		AndroidHelper.setTabSpinnerOnClickListener(this);
 	}
-
 
 	//当前屏幕的高度
 	public static float Zo(Context context) {
 		try {
 
-			@SuppressWarnings("deprecation") 
-				Display defaultDisplay = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? 
-				context.getDisplay() 
-				: ((WindowManager) context.getSystemService("window")).getDefaultDisplay();
-
+			@SuppressWarnings("deprecation")
+			Display defaultDisplay = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+					? context.getDisplay()
+					: ((WindowManager) context.getSystemService("window")).getDefaultDisplay();
 
 			// Display defaultDisplay = ((WindowManager) context.getSystemService("window")).getDefaultDisplay();
 			int height = defaultDisplay.getHeight();
 			return height / context.getResources().getDisplayMetrics().density;
-        }
-		catch (Throwable t) {
+		} catch (Throwable t) {
 			throw new RuntimeException(t);
-        }
-    }
-
+		}
+	}
 
 	//可见屏幕的高度
 	public static float Ws(Context context) {
-        try {
-            Activity activity = (Activity) context;
-            float f = activity.getResources().getDisplayMetrics().density;
-            Rect rect = new Rect();
-            activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-            return (rect.bottom - rect.top) / f;
-        }
-		catch (Throwable e) {
+		try {
+			Activity activity = (Activity) context;
+			float f = activity.getResources().getDisplayMetrics().density;
+			Rect rect = new Rect();
+			activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
+			return (rect.bottom - rect.top) / f;
+		} catch (Throwable e) {
 			throw new RuntimeException(e);
-        }
-    }
+		}
+	}
 
 	@Override
 	public void FH(boolean z) {
 		ServiceContainer.DW().u7(!z);
 		q7();
 		if (z) {
-            boolean isLandscape = isLandscape();
-			if (isLandscape && ((com.aide.common.AndroidHelper.getScreenHeightInDp(this) > 800.0f || getSplitView().isHorizontal() && com.aide.common.AndroidHelper.getScreenHeightInDp(this) >= 540.0f))) {
+			boolean isLandscape = isLandscape();
+			if (isLandscape && ((com.aide.common.AndroidHelper.getScreenHeightInDp(this) > 800.0f
+					|| getSplitView().isHorizontal()
+							&& com.aide.common.AndroidHelper.getScreenHeightInDp(this) >= 540.0f))) {
 				return;
 			}
 			Ws(false);
@@ -436,30 +432,23 @@ public class ZeroAicyMainActivity extends MainActivity {
 	public void IS(int showPageIndex) {
 		//拦截并替换设置PreferencesActivity
 		ZeroAicyPreferencesActivity.DW(this, showPageIndex);
-    }
-
+	}
 
 	@Override
 	public void openFile(String str) {
 		String suffixName = FileSystem.getSuffixName(str).toLowerCase();
 		String mimeTypeFromExtension = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffixName);
 
-		if (mimeTypeFromExtension != null 
-			&& !mimeTypeFromExtension.startsWith("text")
-			&& !mimeTypeFromExtension.equals("application/javascript")
-			&& !mimeTypeFromExtension.equals("application/json")
-		
-			&& !suffixName.equals("java") 
-			&& !suffixName.equals("class") 
-			&& !suffixName.equals("xml") 
-			&& !suffixName.equals("svg") 
+		if (mimeTypeFromExtension != null && !mimeTypeFromExtension.startsWith("text")
+				&& !mimeTypeFromExtension.equals("application/javascript")
+				&& !mimeTypeFromExtension.equals("application/json")
 
-			&& !suffixName.equals("js") 
-			&& !suffixName.equals("css") 
-			&& !suffixName.equals("json") 
-		
-			) {
+				&& !suffixName.equals("java") && !suffixName.equals("class") && !suffixName.equals("xml")
+				&& !suffixName.equals("svg")
 
+				&& !suffixName.equals("js") && !suffixName.equals("css") && !suffixName.equals("json")
+
+		) {
 
 			Intent intent = new Intent();
 			intent.setAction("android.intent.action.VIEW");
@@ -476,8 +465,7 @@ public class ZeroAicyMainActivity extends MainActivity {
 				gn(this, intent);
 				startActivity(intent);
 				Probelytics.BT(this, intent);
-			}
-			catch (ActivityNotFoundException unused) {
+			} catch (ActivityNotFoundException unused) {
 				Context VH = ServiceContainer.getContext();
 				Toast.makeText(VH, "No handler found for type " + mimeTypeFromExtension, 0).show();
 			}
@@ -494,19 +482,17 @@ public class ZeroAicyMainActivity extends MainActivity {
 		aq(new FileSpan(str, 1, 1, 1, 1));
 		ServiceContainer.getProjectService().openFile(str);
 
-
-    }
+	}
 
 	private static void gn(Object obj, Intent intent) {
-        ((MainActivity) obj).startActivity(intent);
-        Probelytics.BT(obj, intent);
-    }
+		((MainActivity) obj).startActivity(intent);
+		Probelytics.BT(obj, intent);
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return super.onCreateOptionsMenu(menu);
 	}
-
 
 	//命令
 	private static final String gradle_cmd_line_extra = "gradle_cmd_line_extra";
@@ -546,45 +532,47 @@ public class ZeroAicyMainActivity extends MainActivity {
 		Menu menu = popupMenu.getMenu();
 
 		for (final CharSequence itemName : itemNameMap.keySet()) {
-			menu.add(itemName)
-				.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
-					@Override
-					public boolean onMenuItemClick(MenuItem _item) {
-						String cmdline = itemNameMap.get(itemName);
+			menu.add(itemName).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+				@Override
+				public boolean onMenuItemClick(MenuItem _item) {
+					String cmdline = itemNameMap.get(itemName);
 
-						Intent launchIntentForPackage;
-						if ("io.github.zeroaicy.aide2".equals(getPackageName())) {
-							launchIntentForPackage = new Intent().setComponent(new ComponentName(ZeroAicyMainActivity.this, "com.termux.app.TermuxActivity"));
-						} else {
-							launchIntentForPackage = getPackageManager().getLaunchIntentForPackage("com.aide.termux");
+					Intent launchIntentForPackage;
+					if ("io.github.zeroaicy.aide2".equals(getPackageName())) {
+						launchIntentForPackage = new Intent().setComponent(
+								new ComponentName(ZeroAicyMainActivity.this, "com.termux.app.TermuxActivity"));
+					} else {
+						launchIntentForPackage = getPackageManager().getLaunchIntentForPackage("com.aide.termux");
 
-						}
+					}
 
-						if (launchIntentForPackage == null) {
-							com.aide.common.MessageBox.BT(ServiceContainer.getMainActivity(), "运行错误", "AIDE-Termux未安装或找不到主Activity");
-							return true;
-						}
-
-
-						String currentAppHome = ZeroAicySetting.getCurrentAppHome();
-						if (currentAppHome == null) {
-							com.aide.common.MessageBox.BT(ServiceContainer.getMainActivity(), "没有打开Gradle项目", "请保证项目目录下GradleWrapper(Gradle包装器)");
-							return true;
-						}
-						File gradleProjectRootDir = new File(currentAppHome).getParentFile();
-						launchIntentForPackage.putExtra(work_dir_extra, gradleProjectRootDir.getAbsolutePath());
-						if (cmdline.contains("gradle")) {
-							if (!hasGradlew(currentAppHome)) {
-								com.aide.common.MessageBox.BT(ServiceContainer.getMainActivity(), "不是Gradle项目", "请保证项目目录下GradleWrapper(Gradle包装器)");
-								return true;
-							}
-							launchIntentForPackage.putExtra(gradle_cmd_line_extra, cmdline);
-						}
-						startActivity(launchIntentForPackage);
-
+					if (launchIntentForPackage == null) {
+						com.aide.common.MessageBox.BT(ServiceContainer.getMainActivity(), "运行错误",
+								"AIDE-Termux未安装或找不到主Activity");
 						return true;
 					}
-				});
+
+					String currentAppHome = ZeroAicySetting.getCurrentAppHome();
+					if (currentAppHome == null) {
+						com.aide.common.MessageBox.BT(ServiceContainer.getMainActivity(), "没有打开Gradle项目",
+								"请保证项目目录下GradleWrapper(Gradle包装器)");
+						return true;
+					}
+					File gradleProjectRootDir = new File(currentAppHome).getParentFile();
+					launchIntentForPackage.putExtra(work_dir_extra, gradleProjectRootDir.getAbsolutePath());
+					if (cmdline.contains("gradle")) {
+						if (!hasGradlew(currentAppHome)) {
+							com.aide.common.MessageBox.BT(ServiceContainer.getMainActivity(), "不是Gradle项目",
+									"请保证项目目录下GradleWrapper(Gradle包装器)");
+							return true;
+						}
+						launchIntentForPackage.putExtra(gradle_cmd_line_extra, cmdline);
+					}
+					startActivity(launchIntentForPackage);
+
+					return true;
+				}
+			});
 		}
 		popupMenu.show();
 	}
@@ -599,9 +587,7 @@ public class ZeroAicyMainActivity extends MainActivity {
 		File gradleWrapperJarFile = new File(gradleProjectRootDir, "gradle/wrapper/gradle-wrapper.jar");
 		File gradleWrapperProperties = new File(gradleProjectRootDir, "gradle/wrapper/gradle-wrapper.properties");
 
-		return gradlewFile.isFile()
-			&& gradleWrapperJarFile.isFile()
-			&& gradleWrapperProperties.isFile();
+		return gradlewFile.isFile() && gradleWrapperJarFile.isFile() && gradleWrapperProperties.isFile();
 	}
 
 	@Override
@@ -611,7 +597,7 @@ public class ZeroAicyMainActivity extends MainActivity {
 			RepairBUG2(menu);
 		}
 		boolean onPrepareOptionsMenu = super.onPrepareOptionsMenu(menu);
-		for (int index= 0, size = menu.size(); index < size; index++) {
+		for (int index = 0, size = menu.size(); index < size; index++) {
 			MenuItem menuItem = menu.getItem(index);
 			if (!menuItem.isEnabled() && menuItem.isVisible()) {
 				SpannableString s = new SpannableString(menuItem.getTitle());
@@ -621,7 +607,7 @@ public class ZeroAicyMainActivity extends MainActivity {
 		}
 		/*
 		 MenuItem mainMenuSaveItem = menu.findItem(R.id.mainMenuSave);
-
+		
 		 if( mainMenuSaveItem != null){
 		 MenuItemCommand saveMenuItemCommand = AppCommands.u7(mainMenuSaveItem.getItemId());
 		 // setEnabled不变灰色，那就隐藏😕
@@ -631,7 +617,7 @@ public class ZeroAicyMainActivity extends MainActivity {
 		 SpannableString s = new SpannableString(mainMenuSaveItem.getTitle());
 		 s.setSpan(new ForegroundColorSpan(Color.GRAY), 0, s.length(), 0);
 		 mainMenuSaveItem.setTitle(s);
-
+		
 		 // 隐藏
 		 //mainMenuSaveItem.setVisible(isEnabled);
 		 }
@@ -639,47 +625,46 @@ public class ZeroAicyMainActivity extends MainActivity {
 		return onPrepareOptionsMenu;
 	}
 
-
 	//查找Toolbar
 	public static android.widget.Toolbar findToolbarByMenu(Menu mMenu) {
 		try {
-            if (mMenu == null) {
+			if (mMenu == null) {
 				//实例是 MenuItemImpl
-                return null;
-            }
+				return null;
+			}
 			CopyOnWriteArrayList<WeakReference<?>> mPresenters = ReflectPie.on(mMenu).get("mPresenters");
-            for (WeakReference<?> ref : mPresenters) {
-                final Object presenter = ref.get();
-                if (presenter == null) {
-                    mPresenters.remove(ref);
+			for (WeakReference<?> ref : mPresenters) {
+				final Object presenter = ref.get();
+				if (presenter == null) {
+					mPresenters.remove(ref);
 					continue;
-                }
+				}
 				if (presenter.getClass().getName().contains("Toolbar$")) {
 					Object unknownToolbar = ReflectPie.on(presenter).get("this$0");
 					if (unknownToolbar instanceof android.widget.Toolbar) {
-						return (android.widget.Toolbar)unknownToolbar;
+						return (android.widget.Toolbar) unknownToolbar;
 					}
-                }
-            }
-        }
-		catch ( Throwable e) {}
+				}
+			}
+		} catch (Throwable e) {
+		}
 		return null;
 	}
 	//Menu clear修复
 	public static void RepairBUG1(Menu mMenu) {
-        try {
-            if (mMenu == null) {
-                return;
-            }
+		try {
+			if (mMenu == null) {
+				return;
+			}
 			android.widget.Toolbar mToolbar = findToolbarByMenu(mMenu);
 			RepairCollapseActionView(mToolbar);//修复
-        }
-		catch ( Throwable e) {}
+		} catch (Throwable e) {
+		}
 
-    }
+	}
 	//mCollapseButtonView 修复
 	public static void RepairBUG2(Menu mMenu) {
-        try {
+		try {
 			final android.widget.Toolbar mToolbar = findToolbarByMenu(mMenu);
 			if (mToolbar == null) {
 				return;
@@ -689,28 +674,28 @@ public class ZeroAicyMainActivity extends MainActivity {
 
 			}
 			if (mCollapseButtonView != null) {
-				mCollapseButtonView.setOnClickListener(new View.OnClickListener(){
-						@Override
-						public void onClick(View view) {
-							try {
-								//修复
-								RepairCollapseActionView(mToolbar);
-								mToolbar.collapseActionView();
-							}
-							catch ( Throwable e) {}
+				mCollapseButtonView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						try {
+							//修复
+							RepairCollapseActionView(mToolbar);
+							mToolbar.collapseActionView();
+						} catch (Throwable e) {
 						}
-					});
+					}
+				});
 			}
-        }
-		catch ( Throwable e) {}
+		} catch (Throwable e) {
+		}
 	}
 
 	//修复 collapseActionView方法
 	public static void RepairCollapseActionView(android.widget.Toolbar mToolbar) {
-        try {
-            if (mToolbar == null) {
-                return;
-            }
+		try {
+			if (mToolbar == null) {
+				return;
+			}
 			List<View> mHiddenViews = ReflectPie.on(mToolbar).get("mHiddenViews");
 			if (mHiddenViews == null) {
 				return;
@@ -724,7 +709,8 @@ public class ZeroAicyMainActivity extends MainActivity {
 				parent.removeView(view);
 
 			}
+		} catch (Throwable e) {
 		}
-		catch ( Throwable e) {}
 	}
 }
+
