@@ -17,22 +17,20 @@ import com.aide.ui.rewrite.R;
 import com.aide.ui.util.FileSpan;
 import com.aide.ui.util.FileSystem;
 import com.aide.ui.views.editor.EditorModel;
+import com.aide.ui.views.editor.SelectedRegion;
 import io.github.zeroaicy.aide.preference.ZeroAicySetting;
 import io.github.zeroaicy.aide.ui.services.ThreadPoolService;
+import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-import java.util.HashMap;
-import com.aide.ui.views.CodeEditText.EditorView;
-import io.github.zeroaicy.aide.ui.views.CodeEditText;
-import com.aide.ui.views.editor.SelectedRegion;
-import java.io.StringReader;
 
 /**
  * 代码格式化
@@ -135,20 +133,21 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 		.getMap();
 
 		private void format(AIDEEditor.t editorModel) throws MalformedTreeException, BadLocationException {
-			EditorModel.h h = editorModel.pN(null);
-			String inputText = String.valueOf(h.j6, 0, h.DW);
+			EditorModel.h textBuffer = editorModel.pN(new char[0x8000]);
+			String inputText = String.valueOf(textBuffer.j6, 0, textBuffer.DW);
 
-			int indentationLevel = 0;
-			String lineSeparator = "\n";
+			
 			IDocument doc = new Document(inputText);
 
 			int kind = CodeFormatter.K_COMPILATION_UNIT;
 
 			// 防止污染 defaultSettingsMap
 			HashMap<String, String> settings = new HashMap<String, String>(defaultSettingsMap);
-			DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions(settings);
-			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(options);
+			// DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions(settings);
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(settings);
 
+			int indentationLevel = 0;
+			String lineSeparator = "\n";
 			// 修改增量 基于 charArray offset
 			TextEdit edit = codeFormatter.format(kind, inputText, 0, inputText.length(), indentationLevel,
 												 lineSeparator);
@@ -202,8 +201,9 @@ public class ma implements MenuItemCommand, KeyStrokeCommand {
 					
 					int caretLine = editorView.getCaretLine();
 					int caretColumn = editorView.getCaretColumn();
-					
-					editorModel.Bx(new SelectedRegion(0, 0, endLine - 1, endColumn - 1), editorModel);
+					// 清空数据
+					editorModel.Bx(new SelectedRegion(0, 0, endLine, endColumn), editorModel);
+					// 写入格式化 文本
 					editorModel.a5(0, 0, new StringReader(outputText), editorModel);
 				
 					editorView.TI(caretColumn, caretLine);
