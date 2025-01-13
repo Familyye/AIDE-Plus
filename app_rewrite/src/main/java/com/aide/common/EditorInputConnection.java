@@ -30,18 +30,16 @@ public class EditorInputConnection extends BaseInputConnection {
 	//只有自己引用，可以改名(j6)
 	final KeyStrokeDetector.KeyStrokeHandler KeyStrokeHandler;
 
-
 	protected final ComposingText composingText = new ComposingText();
-    protected final Editor editor;
-	
+	protected final Editor editor;
+
 	public EditorInputConnection(KeyStrokeDetector keyStrokeDetector, View view, boolean fullEditor,
 			KeyStrokeDetector.KeyStrokeHandler keyStrokeHandler, View editorTextView) {
 		super(view, fullEditor);
 
-		
 		this.keyStrokeDetector = keyStrokeDetector;
 		this.KeyStrokeHandler = keyStrokeHandler;
-		
+
 		this.editor = new Editor(editorTextView);
 	}
 
@@ -134,48 +132,48 @@ public class EditorInputConnection extends BaseInputConnection {
 	public void commitTextInternal(CharSequence text) {
 
 	}
-	
+
 	protected void commitTextInternal(CharSequence text, boolean applyAutoIndent) {
 		boolean composingStateBefore = composingText.isComposing();
-        // NOTE: Text styles are ignored by editor
-        // Remove composing text first if there is
-//        if (editor.getProps().trackComposingTextOnCommit) {
-//            if (composingText.isComposing()) {
-//                var composingText = editor.getText().subSequence(this.composingText.startIndex, this.composingText.endIndex).toString();
-//                var commitText = text.toString();
-//                if (this.composingText.endIndex == getCursor().getLeft() && !getCursor().isSelected() && commitText.startsWith(composingText) && commitText.length() > composingText.length()) {
-//                    text = commitText.substring(composingText.length());
-//                    this.composingText.reset();
-//                } else {
-//                    deleteComposingText();
-//                }
-//            }
-//        } else if (composingText.isComposing()) {
-//            deleteComposingText();
-//        }
+		// NOTE: Text styles are ignored by editor
+		// Remove composing text first if there is
+		//        if (editor.getProps().trackComposingTextOnCommit) {
+		//            if (composingText.isComposing()) {
+		//                var composingText = editor.getText().subSequence(this.composingText.startIndex, this.composingText.endIndex).toString();
+		//                var commitText = text.toString();
+		//                if (this.composingText.endIndex == getCursor().getLeft() && !getCursor().isSelected() && commitText.startsWith(composingText) && commitText.length() > composingText.length()) {
+		//                    text = commitText.substring(composingText.length());
+		//                    this.composingText.reset();
+		//                } else {
+		//                    deleteComposingText();
+		//                }
+		//            }
+		//        } else if (composingText.isComposing()) {
+		//            deleteComposingText();
+		//        }
 
-        editor.commitText(text, applyAutoIndent);
+		editor.commitText(text, applyAutoIndent);
 
-        if (composingStateBefore) {
-            endBatchEdit();
-        }
-    }
-	
-	private static void log(String msg) {
-		AppLog.d( TAG, msg);
+		if (composingStateBefore) {
+			endBatchEdit();
+		}
 	}
 
-	public static class Editor{
+	private static void log(String msg) {
+		AppLog.d(TAG, msg);
+	}
+
+	public static class Editor {
 		/**
 		 * Compare the text to commit with composing text.
 		 */
 		public boolean trackComposingTextOnCommit = true;
-		
+
 		final View editorTextView;
 
 		// 自定义
 		final OEditor oEditor;
-		
+
 		public Editor(View editorTextView) {
 			this.editorTextView = editorTextView;
 			if (this.editorTextView instanceof OEditor) {
@@ -188,7 +186,7 @@ public class EditorInputConnection extends BaseInputConnection {
 		public void commitText(CharSequence text, boolean applyAutoIndent) {
 			// TODO: Implement this method
 		}
-		
+
 		public Editor getProps() {
 			return this;
 		}
@@ -253,7 +251,6 @@ public class EditorInputConnection extends BaseInputConnection {
 				}
 			}
 		}
-
 
 	}
 	/**

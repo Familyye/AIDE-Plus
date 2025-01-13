@@ -4,14 +4,12 @@
 //
 package com.aide.common;
 
-import android.os.Build;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
-import com.aide.common.KeyStrokeDetector;
 import com.aide.ui.MainActivity;
 import com.aide.ui.ServiceContainer;
 import com.aide.ui.util.FileSpan;
@@ -19,7 +17,6 @@ import com.aide.ui.views.editor.Model;
 import com.aide.ui.views.editor.OEditor;
 import io.github.zeroaicy.aide.preference.ZeroAicySetting;
 import java.io.StringReader;
-import android.view.inputmethod.TextAttribute;
 
 public class EditorInputConnection2 extends BaseInputConnection {
 	public static final String TAG = "KeyStrokeDetector$a";
@@ -236,7 +233,7 @@ public class EditorInputConnection2 extends BaseInputConnection {
 			commitText = text.toString();
 		}
 
-		LogD("commitText: ['" + commitText + "']");
+		log("commitText: ['" + commitText + "']");
 
 		for (int index = 0; index < KeyStrokeDetector.DW(this.keyStrokeDetector); index++) {
 			this.keyStrokeHandler.j6(new KeyStroke(KeyEvent.KEYCODE_DEL, false, false, false));
@@ -290,7 +287,7 @@ public class EditorInputConnection2 extends BaseInputConnection {
 	@Override
 	public boolean deleteSurroundingText(int beforeLength, int afterLength) {
 
-		LogD("deleteSurroundingText " + beforeLength + " " + afterLength);
+		log("deleteSurroundingText " + beforeLength + " " + afterLength);
 
 		// 重置Composing
 		KeyStrokeDetector.FH(this.keyStrokeDetector, 0);
@@ -319,7 +316,7 @@ public class EditorInputConnection2 extends BaseInputConnection {
 
 	@Override
 	public boolean sendKeyEvent(KeyEvent keyEvent) {
-		LogD("sendKeyEvent " + keyEvent.getKeyCode());
+		log("sendKeyEvent " + keyEvent.getKeyCode());
 		KeyStrokeDetector.FH(this.keyStrokeDetector, 0);
 		return super.sendKeyEvent(wrapUpKeyEvent(keyEvent));
 	}
@@ -333,7 +330,7 @@ public class EditorInputConnection2 extends BaseInputConnection {
 	@Override
 	public boolean setComposingText(CharSequence text, int newCursorPosition) {
 		// 实际KeyStrokeDetector->we[空方法]
-		LogD("setComposingText '" + text + "'");
+		log("setComposingText '" + text + "'");
 
 		//  删除 上次 Composing
 		int backspaceCode = KeyEvent.KEYCODE_DEL;
@@ -350,9 +347,9 @@ public class EditorInputConnection2 extends BaseInputConnection {
 	}
 
 	// 实际KeyStrokeDetector->we[空方法]
-	public void LogD(String charSequence) {
+	public void log(String charSequence) {
 		//KeyStrokeDetector.j6(keyStrokeDetector, charSequence);
-		AppLog.d(TAG, charSequence);
+		// AppLog.d(TAG, charSequence);
 	}
 
 }
