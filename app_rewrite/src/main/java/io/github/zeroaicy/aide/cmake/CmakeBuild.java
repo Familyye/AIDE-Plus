@@ -205,12 +205,11 @@ public class CmakeBuild {
 				//未设置CMAKE_VERSION，自动查找
 				File cmakeDir = new File(this.ANDROID_SDK_PATH, "cmake");
 				String[] cmakeVersions = cmakeDir.list();
-				// 排序
-				Arrays.sort(cmakeVersions);
 
 				if (cmakeVersions == null || cmakeVersions.length == 0) {
 					cmakeBuild.addErrorInfo("未发现cmake可用版本: " + cmakeDir.getAbsolutePath());
 				} else {
+					// 排序
 					setCmakeVersion(cmakeVersions[cmakeVersions.length - 1]);
 				}
 			}
