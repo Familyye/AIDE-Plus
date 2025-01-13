@@ -61,7 +61,6 @@ import com.aide.ui.build.packagingservice.ExternalPackagingService;
 import com.aide.ui.project.JavaGradleProjectSupport;
 import com.aide.ui.project.JavaProjectSupport;
 import com.aide.ui.project.JavaScriptProjectSupport;
-import com.aide.ui.project.NativeExecutableProjectSupport;
 import com.aide.ui.project.PhonegapProjectSupport;
 import com.aide.ui.project.WebsiteProjectSupport;
 import com.aide.ui.project.internal.GradleTools;
@@ -83,6 +82,7 @@ import io.github.zeroaicy.aide.scm.ZeroAicyExternalGitService;
 import io.github.zeroaicy.aide.services.ZeroAicyCodeAnalysisEngineService;
 import io.github.zeroaicy.aide.services.ZeroAicyExternalPackagingService;
 import io.github.zeroaicy.aide.ui.project.ZeroAicyAndroidProjectSupport;
+import io.github.zeroaicy.aide.ui.project.ZeroAicyNativeExecutableProjectSupport;
 import io.github.zeroaicy.aide.utils.Utils;
 import io.github.zeroaicy.aide.utils.ZeroAicyBuildGradle;
 import io.github.zeroaicy.util.ContextUtil;
@@ -648,8 +648,8 @@ public class ZeroAicyExtensionInterface {
 			new ZeroAicyAndroidProjectSupport(), 
 			new WebsiteProjectSupport(), 
 			new PhonegapProjectSupport(), 
-			new JavaProjectSupport(), 
-			new NativeExecutableProjectSupport(),
+			new JavaProjectSupport(),
+			new ZeroAicyNativeExecutableProjectSupport(),
 			new JavaScriptProjectSupport()};
 	}
 

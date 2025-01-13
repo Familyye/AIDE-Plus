@@ -64,9 +64,9 @@ public class NdkBuildService {
 		this.executorService = ZeroAicyExtensionInterface.getProjectExecutorService();
 	}
 	public static PendingIntent j6(Context context, int i, Intent intent, int i2) {
-        i2 |= PendingIntent.FLAG_MUTABLE;
+		i2 |= PendingIntent.FLAG_MUTABLE;
 		return PendingIntent.getActivity(context, i, intent, i2);
-    }
+	}
 	static void DW(NdkBuildService ndkBuildService, Map<String, List<SyntaxError>> map) {
 		ndkBuildService.we(map);
 	}
@@ -125,8 +125,7 @@ public class NdkBuildService {
 
 							try {
 								i = Integer.parseInt(errorLine.substring(i2, indexOf2));
-							}
-							catch (NumberFormatException unused) {
+							} catch (NumberFormatException unused) {
 								i = 1;
 							}
 							int i3 = indexOf2 + 1;
@@ -134,8 +133,7 @@ public class NdkBuildService {
 							if (indexOf3 > 0) {
 								try {
 									Integer.parseInt(errorLine.substring(i3, indexOf3));
-								}
-								catch (NumberFormatException unused2) {
+								} catch (NumberFormatException unused2) {
 								}
 							}
 							String trim2 = errorLine.substring(indexOf3 + 1, errorLine.length()).trim();
@@ -149,8 +147,7 @@ public class NdkBuildService {
 						}
 					}
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				AppLog.e(e);
 			}
 
@@ -199,7 +196,7 @@ public class NdkBuildService {
 			this.runNdkBuildFutureTask = null;
 		}
 		RunNdkBuildFutureTask runNdkBuildFutureTask = new RunNdkBuildFutureTask(this, new RunNdkBuildCallable(this, z,
-																											  AppPreferences.isNativeBuildParallel(), ServiceContainer.getProjectService().P8()));
+				AppPreferences.isNativeBuildParallel(), ServiceContainer.getProjectService().P8()));
 
 		this.runNdkBuildFutureTask = runNdkBuildFutureTask;
 		this.executorService.execute(runNdkBuildFutureTask);
@@ -243,11 +240,9 @@ public class NdkBuildService {
 				} else {
 					NdkBuildService.DW(this.ndkBuildService, errors);
 				}
-			}
-			catch (InterruptedException unused) {
+			} catch (InterruptedException unused) {
 				NdkBuildService.FH(this.ndkBuildService);
-			}
-			catch (ExecutionException e) {
+			} catch (ExecutionException e) {
 				NdkBuildService.Hw(this.ndkBuildService, e.getCause());
 			}
 		}
@@ -265,7 +260,7 @@ public class NdkBuildService {
 		private final boolean isClean;
 
 		public RunNdkBuildCallable(NdkBuildService ndkBuildService, boolean isClean, boolean isNativeBuildParallel,
-								   List<String> modules) {
+				List<String> modules) {
 			this.ndkBuildService = ndkBuildService;
 			this.isClean = isClean;
 
@@ -277,8 +272,7 @@ public class NdkBuildService {
 			String str = "";
 			try {
 				str = StreamUtilities.readTextReader(new InputStreamReader(new ByteArrayInputStream(data)));
-			}
-			catch (Exception unused) {
+			} catch (Exception unused) {
 			}
 
 			String trim = str.trim();
@@ -303,7 +297,6 @@ public class NdkBuildService {
 		}
 
 		private static void Hw(List<String> list, String str) {
-
 
 			StringBuilder sb = new StringBuilder();
 
@@ -382,7 +375,7 @@ public class NdkBuildService {
 					hashMap.put(module, new ArrayList<SyntaxError>());
 
 					SyntaxError makeSyntaxError = NdkBuildService.makeSyntaxError(this.ndkBuildService, "NDK", 1, 1,
-																				  "Native development is not supported on X86 devices running Android 10 and above.");
+							"Native development is not supported on X86 devices running Android 10 and above.");
 					SyntaxError syntaxError = makeSyntaxError;
 
 					hashMap.get(module).add(syntaxError);
@@ -391,7 +384,7 @@ public class NdkBuildService {
 					hashMap.put(module, new ArrayList<SyntaxError>());
 
 					SyntaxError makeSyntaxError = NdkBuildService.makeSyntaxError(this.ndkBuildService, "NDK", 1, 1,
-																				  "NDK support not installed.");
+							"NDK support not installed.");
 					hashMap.get(module).add(makeSyntaxError);
 				}
 				return hashMap;
@@ -488,25 +481,25 @@ public class NdkBuildService {
 
 					CmakeBuild.Builder builder = new CmakeBuild.Builder()
 
-						// 指定ndk所在父目录 android-sdk
-						// 空值 build() 后自动指定 CMAKE_VERSION 与 NDK_VERSION
-						.setAndroidSdkPath(androidSdkPath)
-						// ndk版本
-						.setNdkVersion(ndkVersion)
-						// 指定cmake版本
-						.setCmakeVersion(cmakeVersion)
+							// 指定ndk所在父目录 android-sdk
+							// 空值 build() 后自动指定 CMAKE_VERSION 与 NDK_VERSION
+							.setAndroidSdkPath(androidSdkPath)
+							// ndk版本
+							.setNdkVersion(ndkVersion)
+							// 指定cmake版本
+							.setCmakeVersion(cmakeVersion)
 
-						// 项目路径
-						.setProjectPath(projectPath)
-						// 指定安卓版本
-						.setSystemVersion(minSdkVersion)
-						// 输出目录
-						.setCmakeOutputDirectoryPath("src/main/jniLibs")
-						// 必须在setCmakeOutputDirectoryPath之后调用
-						// 否则被覆盖
-						.setCmakeBuildCachePath(cmakeBuildCachePath)
-						// 源码路径
-						.setCmakeListsTxtPath(cmakeListsTxtPath);
+							// 项目路径
+							.setProjectPath(projectPath)
+							// 指定安卓版本
+							.setSystemVersion(minSdkVersion)
+							// 输出目录
+							.setCmakeOutputDirectoryPath("src/main/jniLibs")
+							// 必须在setCmakeOutputDirectoryPath之后调用
+							// 否则被覆盖
+							.setCmakeBuildCachePath(cmakeBuildCachePath)
+							// 源码路径
+							.setCmakeListsTxtPath(cmakeListsTxtPath);
 
 					if (this.isClean) {
 						// 清除
@@ -517,26 +510,71 @@ public class NdkBuildService {
 
 						// 指定构建ABI
 						builder.setAndroidABI(abi)
-							// 指定安卓版本
-							.setSystemVersion(minSdkVersion);
+								// 指定安卓版本，build() 后会被修改
+								.setSystemVersion(minSdkVersion);
 
 						CmakeBuild build = builder.build();
 						ProcessExitInfo runCmakeBuildInfo = runCmakeBuild(build, projectPath);
-						if (runCmakeBuildInfo != null) {
-							if (runCmakeBuildInfo.exit() != 0) {
-								// make
-								return NdkBuildService.Zo(
-									// 
-									this.ndkBuildService, projectPath,
-									DW(runCmakeBuildInfo.getMessagen(), runCmakeBuildInfo.exit()));
-							}
+						if (runCmakeBuildInfo == null) {
+							continue;
 						}
+						if (runCmakeBuildInfo.exit() == 0) {
+							continue;
+						}
+						// make
+						return NdkBuildService.Zo(
+								// 
+								this.ndkBuildService, projectPath,
+								DW(runCmakeBuildInfo.getMessagen(), runCmakeBuildInfo.exit()));
 					}
-					continue;
+				} else {
+
+					// 非gradle项目
+					String projectPath = modulePath;
+
+					String cmakeListsTxtPath = GradleTools.isGradleProject(modulePath) ? "src/main/cpp" : "cpp";
+
+					String minSdkVersion = "21";
+					String abi = "arm64-v8a";
+					String cmakeOutputDirectoryPath = "libs";
+
+					CmakeBuild.Builder builder = new CmakeBuild.Builder()
+
+							// 指定ndk所在父目录 android-sdk
+							// 空值 build() 后自动指定 CMAKE_VERSION 与 NDK_VERSION
+							.setAndroidSdkPath(androidSdkPath)
+
+							// 项目路径
+							.setProjectPath(projectPath)
+							// 指定安卓版本
+							.setSystemVersion(minSdkVersion).setAndroidABI(abi)
+							// 输出目录
+							.setCmakeOutputDirectoryPath(cmakeOutputDirectoryPath)
+							// 源码路径
+							.setCmakeListsTxtPath(cmakeListsTxtPath);
+
+					if (this.isClean) {
+						// 清除
+						FileUtil.deleteFolder(new File(projectPath, builder.getCmakeBuildCachePath()));
+					}
+
+					CmakeBuild build = builder.build();
+
+					ProcessExitInfo runCmakeBuildInfo = runCmakeBuild(build, projectPath);
+
+					if (runCmakeBuildInfo == null) {
+						continue;
+					}
+					if (runCmakeBuildInfo.exit() == 0) {
+						continue;
+					}
+					// make
+					return NdkBuildService.Zo(
+							// 
+							this.ndkBuildService, projectPath,
+							DW(runCmakeBuildInfo.getMessagen(), runCmakeBuildInfo.exit()));
+
 				}
-
-				// 非gradle项目 cpp/CMakeLists.txt | "src/main/cpp/CMakeLists.txt"
-
 			}
 
 			return null;
@@ -562,30 +600,24 @@ public class NdkBuildService {
 			//进程信息
 			Map<String, String> env = termuxEnvironment.isEmpty() ? System.getenv() : termuxEnvironment;
 
-			List<String> cmakeCommandList = termuxShellEnvironment.setupShellCommandArguments(build.getCmakeCommandList());
-			AppLog.d(TAG, cmakeCommandList);
+			List<String> cmakeCommandList = termuxShellEnvironment
+					.setupShellCommandArguments(build.getCmakeCommandList());
+			
+			// AppLog.d(TAG, cmakeCommandList);
+			
 			ProcessExitInfo processInfo = ProcessUtil.j6(cmakeCommandList, projectPath, env, true, null, null);
-
-			//			if (!true) {
-			//				System.out.println("\n*****debug 编译信息*****");
-			//				System.out.println(new String(processInfo.getMessagen()));
-			//				if( processInfo.exit() != 0) System.out.println("**********\n\n");
-			//			}
 
 			if (processInfo.exit() != 0) {
 				return processInfo;
 			}
 
 			//ninja build.ninja
-			List<String> ninjaCommandList = termuxShellEnvironment.setupShellCommandArguments(build.getNinjaCommandList());
-			AppLog.d(TAG, ninjaCommandList);
+			List<String> ninjaCommandList = termuxShellEnvironment
+					.setupShellCommandArguments(build.getNinjaCommandList());
+			
+			// AppLog.d(TAG, ninjaCommandList);
+			
 			processInfo = ProcessUtil.j6(ninjaCommandList, projectPath, env, true, null, null);
-
-			//			if (!true) {
-			//				System.out.println("\n*****debug ninja运行信息 *****");
-			//				System.out.println(new String(processInfo.getMessagen()));
-			//				System.out.println("**********\n\n");
-			//			}
 
 			if (processInfo.exit() != 0) {
 				return processInfo;
