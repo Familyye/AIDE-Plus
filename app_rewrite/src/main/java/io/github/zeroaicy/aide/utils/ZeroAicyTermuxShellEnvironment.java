@@ -36,43 +36,42 @@ public class ZeroAicyTermuxShellEnvironment {
 		initProotEnv(ZeroAicyTermuxShellEnvironment.applicationContext);
 	}
 
-	public ZeroAicyTermuxShellEnvironment() {}
-	
-	
+	public ZeroAicyTermuxShellEnvironment() {
+	}
+
 	public Map<String, String> getEnvironment(boolean isFailSafe) {
 		HashMap<String, String> environment = new HashMap<>();
 		putCustomizeEnv(environment);
 		return environment;
 	}
-	
+
 	public Map<String, String> getEnvironment(boolean isFailSafe, Map<String, String> env) {
 		HashMap<String, String> environment = new HashMap<>(env);
 		putCustomizeEnv(environment);
 		return environment;
 	}
-	
+
 	public List<String> setupShellCommandArguments(List<String> arguments) {
-		
-		List<String> result = new ArrayList<>();
-        
-		if ( ZeroAicyTermuxShellEnvironment.ProotMod) {
-			String PACKAGE_NAME_PATH = ZeroAicyTermuxShellEnvironment.PACKAGE_NAME_PATH;
-			//以proot方式启动
-			result.add(ZeroAicyTermuxShellEnvironment.PROOT_PATH);
-
-			result.add("--rootfs=/");
-			result.add("--bind=" + PACKAGE_NAME_PATH + ":/data/data/com.termux");
-			result.add("--bind=" + PACKAGE_NAME_PATH + ":/data/user/0/com.termux");
-
-			result.add("--bind=" + PACKAGE_NAME_PATH + "/cache" + ":/linkerconfig");
+		if (!ZeroAicyTermuxShellEnvironment.ProotMod) {
+			return arguments;
 		}
+		List<String> result = new ArrayList<>();
+
+		String PACKAGE_NAME_PATH = ZeroAicyTermuxShellEnvironment.PACKAGE_NAME_PATH;
+		//以proot方式启动
+		result.add(ZeroAicyTermuxShellEnvironment.PROOT_PATH);
 		
+		result.add("--rootfs=/");
+		result.add("--bind=" + PACKAGE_NAME_PATH + ":/data/data/com.termux");
+		result.add("--bind=" + PACKAGE_NAME_PATH + ":/data/user/0/com.termux");
+
+		result.add("--bind=" + PACKAGE_NAME_PATH + "/cache" + ":/linkerconfig");
+
 		result.addAll(arguments);
-		
-		return arguments;
+
+		return result;
 	}
-	
-	
+
 	// proot模式
 	public static boolean ProotMod;
 
@@ -83,23 +82,22 @@ public class ZeroAicyTermuxShellEnvironment {
 	// /linkerconfig/ld.config.txt路径
 	public static String PROOT_TMP_DIR;
 
-
 	private static void initProotEnv(Context currentPackageContext) {
-
 
 		if (ZeroAicyTermuxShellEnvironment.PROOT_PATH != null) {
 			return;
 		}
-		
+
 		try {
-			ZeroAicyTermuxShellEnvironment.ProotMod = currentPackageContext.getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.P;
+			ZeroAicyTermuxShellEnvironment.ProotMod = currentPackageContext
+					.getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.P;
+		} catch (Throwable e) {
+			ZeroAicyTermuxShellEnvironment.ProotMod = true;
 		}
-		catch (Throwable e) { 
-			ProotMod = true;
-		}
-		
+
 		if (ZeroAicyTermuxShellEnvironment.PROOT_PATH == null) {
-			ZeroAicyTermuxShellEnvironment.PROOT_PATH = currentPackageContext.getApplicationInfo().nativeLibraryDir + "/libproot.so";
+			ZeroAicyTermuxShellEnvironment.PROOT_PATH = currentPackageContext.getApplicationInfo().nativeLibraryDir
+					+ "/libproot.so";
 		}
 
 		if (ZeroAicyTermuxShellEnvironment.PACKAGE_NAME_PATH == null) {
@@ -116,7 +114,7 @@ public class ZeroAicyTermuxShellEnvironment {
 		if (!ld_config_txt_file.exists() || ld_config_txt_file.length() == 0) {
 			try {
 				Files.copy(Paths.get("/linkerconfig/ld.config.txt"), ld_config_txt_file.toPath(),
-						   StandardCopyOption.REPLACE_EXISTING);
+						StandardCopyOption.REPLACE_EXISTING);
 				ld_config_txt_file.setReadable(true, false);
 			} catch (Throwable e) {
 				e.printStackTrace();
