@@ -393,7 +393,7 @@ public final class XXPermissions {
     public static void startPermissionActivity( Activity activity,
                                                 String[] permissions,
                                                OnPermissionPageCallback callback) {
-        startPermissionActivity(activity, PermissionUtils.asArrayLists(permissions), callback);
+        startPermissionActivity(activity, PermissionUtils.asArrayLists(new String[][]{permissions}), callback);
     }
 
     public static void startPermissionActivity( Activity activity,
@@ -451,7 +451,7 @@ public final class XXPermissions {
     public static void startPermissionActivity( Fragment fragment,
                                                 String[] permissions,
                                                OnPermissionPageCallback callback) {
-        startPermissionActivity(fragment, PermissionUtils.asArrayLists(permissions), callback);
+        startPermissionActivity(fragment, PermissionUtils.asArrayLists(new String[][]{permissions}), callback);
     }
 
     public static void startPermissionActivity( Fragment fragment,

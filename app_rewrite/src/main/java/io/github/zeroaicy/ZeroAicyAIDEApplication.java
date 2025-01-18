@@ -12,6 +12,7 @@ import io.github.zeroaicy.aide.highlight.CodeTheme;
 import io.github.zeroaicy.aide.preference.ZeroAicySetting;
 import io.github.zeroaicy.aide.shizuku.ShizukuUtil;
 import io.github.zeroaicy.aide.utils.Logger;
+import io.github.zeroaicy.aide.utils.ZeroAicyTermuxShellEnvironment;
 import io.github.zeroaicy.aide.utils.jks.JksKeyStore;
 import io.github.zeroaicy.util.ContextUtil;
 import io.github.zeroaicy.util.DebugUtil;
@@ -21,7 +22,6 @@ import io.github.zeroaicy.util.crash.CrashApphandler;
 import io.github.zeroaicy.util.reflect.ReflectPie;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import io.github.zeroaicy.aide.utils.ZeroAicyTermuxShellEnvironment;
 
 public class ZeroAicyAIDEApplication extends AIDEApplication {
 

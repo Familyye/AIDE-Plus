@@ -6,6 +6,7 @@ package io.github.zeroaicy.aide.ui.project;
 import com.aide.ui.project.NativeExecutableProjectSupport;
 import java.io.File;
 import com.aide.ui.project.internal.GradleTools;
+import com.aide.ui.util.FileSystem;
 
 public class ZeroAicyNativeExecutableProjectSupport extends NativeExecutableProjectSupport{
 
@@ -19,7 +20,10 @@ public class ZeroAicyNativeExecutableProjectSupport extends NativeExecutableProj
 	@Override
 	public boolean vy(String projectPath) {
 		
-		return GradleTools.getAndroidMkPath(projectPath);
+		if( FileSystem.isFileAndNotZip(projectPath + "/cpp/CMakeLists.txt")){
+			return false;
+		}
+		return FileSystem.isFileAndNotZip(projectPath + "/jni/Android.mk");
 	}
 	
 	

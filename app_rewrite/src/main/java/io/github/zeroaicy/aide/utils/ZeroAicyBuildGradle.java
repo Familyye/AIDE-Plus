@@ -37,6 +37,7 @@ import org.codehaus.groovy.antlr.SourceBuffer;
 import org.codehaus.groovy.antlr.UnicodeEscapingReader;
 import org.codehaus.groovy.antlr.parser.GroovyLexer;
 import org.codehaus.groovy.antlr.parser.GroovyRecognizer;
+import java.io.File;
 
 public class ZeroAicyBuildGradle extends BuildGradle {
 
@@ -154,11 +155,14 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 		this.isSingleton = isSingleton;
 		init();
 	}
-	public ZeroAicyBuildGradle(String filePath) {
+	
+	PropertiesConfiguration gradlePropertiesConfiguration;
+	
+	public ZeroAicyBuildGradle(String path) {
 		super();
 		// getConfiguration在调用 makeConfiguration后会赋值
 		// 导致解析时无法使用此变量, 赋值
-		this.configurationPath = filePath;
+		this.configurationPath = path;
 		this.isSingleton = false;
 
 		init();
@@ -166,8 +170,23 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 		FileReader fileReader = null;
 		UnicodeEscapingReader unicodeEscapingReader = null;
 		try {
+			
+			File buildGradle = new File(this.configurationPath);
+			
+			File buildGradleParentFile = buildGradle.getParentFile();
+			
+			File gradlePropertiesParentFile = buildGradleParentFile.getParentFile();
+			
+			if( new File(gradlePropertiesParentFile, "settings.gradle").isFile()){
+				File gradlePropertiesFile = new File(gradlePropertiesParentFile, "gradle.properties");
+				String gradlePropertiesFilePath = gradlePropertiesFile.getAbsolutePath();
 
-			fileReader = new FileReader(filePath);
+				if( gradlePropertiesFile.isFile()){
+					this.gradlePropertiesConfiguration = PropertiesConfiguration.getSingleton().getConfiguration(gradlePropertiesFilePath);
+				}
+			}
+			
+			fileReader = new FileReader(buildGradle);
 			SourceBuffer sourceBuffer = new SourceBuffer();
 			unicodeEscapingReader = new UnicodeEscapingReader(fileReader, sourceBuffer);
 
@@ -215,24 +234,18 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 				syntaxError.k2 = 1000;
 				syntaxError.zh = tokenStreamRecognitionException.toString();
 
-				hashMap.put(filePath, Collections.singletonList(syntaxError));
+				hashMap.put(path, Collections.singletonList(syntaxError));
 				ServiceContainer.getErrorService().EQ("Gradle", hashMap);
 			}
 			AppLog.e(TAG, e.getMessage(), e);
-
-			//throw new Error(e);
 		} catch (Throwable e) {
 			AppLog.d(TAG, e.getMessage(), e);
-			/*
-			 if ( e instanceof Error ) 
-			 throw (Error)e;
-			 else
-			 throw new Error(e);
-			 */
 		} finally {
 			IOUtils.close(unicodeEscapingReader);
 			IOUtils.close(fileReader);
 		}
+		
+		System.out.println(dependencies);
 	}
 
 	private ZeroAicyProductFlavor defaultZeroAicyProductFlavor;
@@ -797,6 +810,73 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 		if (coords == null) {
 			return null;
 		}
+		if( "STRING_CONSTRUCTOR".equals( coords)){
+			// groupId:artifactId:version@extension
+			// {group}:{name}:{version}[{:classifier}@{extension}]
+
+			// groupId:artifactId
+			// STRING_CONSTRUCTOR
+			// :classifier
+			AST stringConstructorAst = getFirstChild(getNextSibling( getFirstChild(getFirstChild(ast))));
+
+			if( stringConstructorAst == null ){
+				return null;
+			}
+
+
+			// 'groupId:artifactId:'
+			AST gaAst = getFirstChild(stringConstructorAst);
+
+			String gaAstText = getText(gaAst);
+
+			String[] coordsArray = gaAstText.split(":");
+			
+			if( coordsArray.length < 2){
+				return null;
+			}
+
+			String groupId = coordsArray[0];
+			String artifactId = coordsArray[1];
+			// 默认空值
+			String version = "+";
+
+
+			AST versionAst = getNextSibling(gaAst);
+			String versionAstText = getText(versionAst);
+			
+			if( this.gradlePropertiesConfiguration != null){
+				version = this.gradlePropertiesConfiguration.getProperty(versionAstText, "+");
+			}
+
+			String extendAstText = getText(getNextSibling(versionAst));
+			
+			ArtifactNode artifactNode = new ArtifactNode(ast.getLine(), groupId, artifactId, version);
+
+			coords = groupId+ ":" + artifactId + ":" + version;
+
+			if(TextUtils.isEmpty( extendAstText)){
+				// 没啥用
+				artifactNode.coords = coords;
+				return artifactNode;
+			}
+
+			if( extendAstText.startsWith("@")){
+				coords+=extendAstText;
+				artifactNode.packaging = extendAstText.substring(1);
+				return artifactNode;
+			}
+
+			int classifierEnd = extendAstText.lastIndexOf('@');
+			classifierEnd = classifierEnd > 0 ? classifierEnd : extendAstText.length();
+
+			if( classifierEnd != extendAstText.length() ){
+				artifactNode.packaging = extendAstText.substring(classifierEnd + 1);
+			}
+
+			artifactNode.classifier = extendAstText.substring(1, classifierEnd);
+
+			return artifactNode;
+		}
 
 		String[] coordsArray = coords.split(":");
 
@@ -823,6 +903,7 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 		// {group}:{name}:{version}[{:classifier}@{extension}]
 
 		version = resolvingVarValue(coordsArray[2]);
+		
 		if (version == null)
 			version = "";
 
@@ -865,17 +946,32 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 	// 如果是变量引用则解析变量
 	private String resolvingVarValue(String version) {
 		// TODO: Implement this method
-		if (version == null)
-			return "+";
-		if (version.length() < 2)
+		AppLog.println_d("resolvingVarValue version %s ", version);
+		
+		if (version == null){
+			return "+";			
+		}
+		
+		if (version.length() < 2){
 			return version;
-
-		if (version.charAt(1) == '{') {
-
 		}
 
+		/*
+		if (version.charAt(1) == '{') {
+			
+		}
+		*/
+		AppLog.println_d("version %s ", version);
+		
 		if (version.startsWith("$")) {
-
+			if( this.gradlePropertiesConfiguration != null){
+				
+				String substring = version.substring(1);
+				AppLog.println_d("version %s -> %s ", version, substring);
+				
+				String property = this.gradlePropertiesConfiguration.getProperty( substring, version);
+				return property;
+			}
 		}
 
 		return version;
