@@ -32,9 +32,9 @@
 - [x] Fixed issue with creating signatures
 - [x] ApkSign now supports v1-v4 signatures
 - [x] Added some basic syntax auto-completion
+- [x] Lambda support
 
 ### Planned
-- [ ] Lambda support
 - [ ] More auto-completion
 
 # Additional Information
