@@ -112,7 +112,7 @@ public class ApiVersionCompletion {
 		String methodSmaliSignature = methodsParamToSmali(methodSignature);
 		if (classInfo instanceof DefaultClassInfo) {
 			DefaultClassInfo defaultClassInfo = (DefaultClassInfo)classInfo;
-			List<MethodInfo> methods = defaultClassInfo.getMethods$res_parse_release().get(methodName);
+			List<MethodInfo> methods = defaultClassInfo.getMethods().get(methodName);
 
 			if( methods != null && !methods.isEmpty()){
 				for (MethodInfo info : methods) {

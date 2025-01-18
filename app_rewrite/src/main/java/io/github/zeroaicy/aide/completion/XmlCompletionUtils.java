@@ -863,7 +863,7 @@ public class XmlCompletionUtils {
                     // 获取 styleable 资源
                     ResourceGroup group = pck.findGroup(type, null);
                     if (group != null) {
-						List<ResourceEntry> foundEntries = findEntries(group.getEntries$aaptcompiler_release(), null, new Predicate<String>() {
+						List<ResourceEntry> foundEntries = findEntries(group.getEntries(), null, new Predicate<String>() {
 								@Override
 								public boolean test(String s) {
 									return true;
@@ -931,7 +931,7 @@ public class XmlCompletionUtils {
 			.findGroup(STYLEABLE, null);
 
         if (styleables != null) {
-            findEntries(styleables.getEntries$aaptcompiler_release(), null, new Predicate<String>() {
+            findEntries(styleables.getEntries(), null, new Predicate<String>() {
 					@Override
 					public boolean test(String s) {
 						return s.startsWith(MANIFEST_TAG_PREFIX);
