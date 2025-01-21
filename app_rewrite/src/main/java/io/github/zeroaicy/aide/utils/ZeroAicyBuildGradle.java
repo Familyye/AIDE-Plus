@@ -244,8 +244,6 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 			IOUtils.close(unicodeEscapingReader);
 			IOUtils.close(fileReader);
 		}
-		
-		System.out.println(dependencies);
 	}
 
 	private ZeroAicyProductFlavor defaultZeroAicyProductFlavor;
@@ -945,35 +943,10 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 	// 版本信息 也可能是 变量引用 $varName || ${varName}
 	// 如果是变量引用则解析变量
 	private String resolvingVarValue(String version) {
-		// TODO: Implement this method
-		AppLog.println_d("resolvingVarValue version %s ", version);
 		
 		if (version == null){
 			return "+";			
 		}
-		
-		if (version.length() < 2){
-			return version;
-		}
-
-		/*
-		if (version.charAt(1) == '{') {
-			
-		}
-		*/
-		AppLog.println_d("version %s ", version);
-		
-		if (version.startsWith("$")) {
-			if( this.gradlePropertiesConfiguration != null){
-				
-				String substring = version.substring(1);
-				AppLog.println_d("version %s -> %s ", version, substring);
-				
-				String property = this.gradlePropertiesConfiguration.getProperty( substring, version);
-				return property;
-			}
-		}
-
 		return version;
 	}
 
@@ -1263,7 +1236,7 @@ public class ZeroAicyBuildGradle extends BuildGradle {
 		}
 
 		if ("sourceCompatibility".equals(nodeSimpleName)) {
-			if (versionValue.startsWith("VERSION_")) {
+			if (versionValue != null && versionValue.startsWith("VERSION_")) {
 				versionValue = versionValue.substring("VERSION_".length());
 			}
 			this.sourceCompatibility = versionValue;
