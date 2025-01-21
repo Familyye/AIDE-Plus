@@ -353,12 +353,19 @@ public class ZeroAicyMainActivity extends MainActivity {
 	@Override
 	public boolean isSelfPermission(String permission) {
 		if (android.Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)) {
+			
+			// 适配 安卓低版本
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 				return super.isSelfPermission(permission);
 			}
+			
 			// 安卓11 
 			// android.permission.WRITE_EXTERNAL_STORAGE -> android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
-			return XXPermissions.isGranted(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+			
+			// 申请 MANAGE_EXTERNAL_STORAGE
+			showRequestManageExternalStorage();
+			// 不申请 WRITE_EXTERNAL_STORAGE
+			return true;
 		}
 
 		return super.isSelfPermission(permission);
