@@ -333,13 +333,13 @@ public class XmlCompletionUtils {
             Set<String> javaViewClasses = getJavaViewUtils().getJavaViewClasses();
 			AppLog.d(TAG, "javaViewClasses size %s ", javaViewClasses.size());
 			
-			for (String s : javaViewClasses) {
+			for (String javaViewClassName : javaViewClasses) {
 				
 				Type type;
-				String className = StyleUtils.getSimpleName(s);
+				String className = StyleUtils.getSimpleName(javaViewClassName);
 				int classNameIdentifierId = identifierSpace.get(className);
 				
-				if (s.startsWith(WIDGET_PKG_PREFIX)) {
+				if (javaViewClassName.startsWith(WIDGET_PKG_PREFIX)) {
 					int widgetIdentifierId = identifierSpace.get("widget");
 					Namespace androidWidgetNamespace = androidNamespace.getMemberNamespace(widgetIdentifierId);
 
@@ -348,31 +348,33 @@ public class XmlCompletionUtils {
 					// new XmlClassType(
 					// entitySpace.d
 
-				} else if (s.startsWith(VIEW_PKG_PREFIX)) {
+				} else if (javaViewClassName.startsWith(VIEW_PKG_PREFIX)) {
 					int viewIdentifierId = identifierSpace.get("view");
 
 					// VIEW_PKG_PREFIX
 					Namespace androidViewNamespace = androidNamespace.getMemberNamespace(viewIdentifierId);
 					type = androidViewNamespace.getAllMemberClassTypes().get(classNameIdentifierId);
 				} else {
+					//  计算 javaViewClassName 的 包名(Namespace)
+					Namespace classNamespace = getClassNamespace(javaViewClassName, model);
 					
-					Namespace classNamespace = getClassNamespace(s, model);
 					MapOfInt<ClassType> allMemberClassTypes = classNamespace.getAllMemberClassTypes();
+					// 查找 类
 					type = allMemberClassTypes.get(classNameIdentifierId);
+					// 非 WIDGET_PKG_PREFIX || VIEW_PKG_PREFIX 使用 全名
+					className = javaViewClassName;
+					
 					if( type == null ){
 						AppLog.d(TAG, "classNamespace %s ", classNamespace.getFullyQualifiedNameString());
-						AppLog.d(TAG, "ClassType %s ", s);
+						AppLog.d(TAG, "ClassType %s ", javaViewClassName);
 						AppLog.d(TAG, "allMemberClassTypes size %s ", allMemberClassTypes.size());
-						
 						AppLog.println_d();
-						
 					}
 				}
+				
 				if( type != null ){
+					// 不能为null
 					model.codeCompleterCallback.aM(type, className);
-				}else{
-					// AppLog.d(TAG, "not found ClassType %s ", s);
-					// AppLog.println_d();
 				}
 			}
 
@@ -1225,8 +1227,9 @@ public class XmlCompletionUtils {
         Arrays.stream(strings).forEach(new Consumer<String>() {
 				@Override
 				public void accept(String s) {
-					Namespace memberNamespace = model.entitySpace.getRootNamespace().getMemberNamespace(model.identifierSpace.get(s));
-					model.codeCompleterCallback.aM(memberNamespace, s);
+					// Namespace memberNamespace = model.entitySpace.getRootNamespace().getMemberNamespace(model.identifierSpace.get(s));
+					// model.codeCompleterCallback.aM(memberNamespace, s);
+					model.codeCompleterCallback.listElementKeywordFound(s);
 				}
 			});
     }
