@@ -1,6 +1,8 @@
 package io.github.zeroaicy.aide.completion;
 
 
+import static io.github.zeroaicy.aide.completion.XmlCompletionUtilsKt.getPlatformDir;
+
 import android.content.Context;
 import com.aide.common.AppLog;
 import com.aide.ui.util.FileSystem;
@@ -45,7 +47,7 @@ public class ApiVersionCompletion {
 
 	private static void initAsync(Context context) {
 		// data,zip 根目录是 data
-		final File platformDir = XmlCompletionUtils.getPlatformDir();
+		final File platformDir = getPlatformDir();
 		File androidSdkDataDir = new File(platformDir, "data");
 		if (!androidSdkDataDir.exists() 
 			|| !androidSdkDataDir.isDirectory()
