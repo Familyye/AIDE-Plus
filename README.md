@@ -13,11 +13,11 @@
 # AIDE-Plus
 
 ## Repository Information
-[![GitHub contributors](https://img.shields.io/github/contributors/neu233/AIDE-Plus)](https://github.com/neu233/AIDE-Plus/graphs/contributors)
-[![GitHub last commit](https://img.shields.io/github/last-commit/neu233/AIDE-Plus)](https://github.com/neu233/AIDE-Plus/commits/)
-[![Repository Size](https://img.shields.io/github/repo-size/neu233/AIDE-Plus)](https://github.com/neu233/AIDE-Plus)
-[![GitHub Release](https://img.shields.io/github/v/release/neu233/AIDE-Plus)](https://github.com/neu233/AIDE-Plus/releases)
-[![Total downloads](https://img.shields.io/github/downloads/neu233/AIDE-Plus/total)](https://github.com/neu233/AIDE-Plus/releases)
+[![GitHub contributors](https://img.shields.io/github/contributors/AndroidIDE-CN/AIDE-Plus)](https://github.com/AndroidIDE-CN/AIDE-Plus/graphs/contributors)
+[![GitHub last commit](https://img.shields.io/github/last-commit/AndroidIDE-CN/AIDE-Plus)](https://github.com/AndroidIDE-CN/AIDE-Plus/commits/)
+[![Repository Size](https://img.shields.io/github/repo-size/AndroidIDE-CN/AIDE-Plus)](https://github.com/AndroidIDE-CN/AIDE-Plus)
+[![GitHub Release](https://img.shields.io/github/v/release/AndroidIDE-CN/AIDE-Plus)](https://github.com/AndroidIDE-CN/AIDE-Plus/releases)
+[![Total downloads](https://img.shields.io/github/downloads/AndroidIDE-CN/AIDE-Plus/total)](https://github.com/AndroidIDE-CN/AIDE-Plus/releases)
 
 ## Implemented Features
 - [x] Build service optimization and rewrite
@@ -52,7 +52,7 @@
 - [x] Java projects support Android API
 - [x] Lambda implementation (ecj) [fbf450d](https://github.com/AndroidIDE-CN/AIDE-Plus/commit/fbf450dba15ccaf51a7a6dd77db300d50551e98b)
 - [x] CMake build support [e702347](https://github.com/AndroidIDE-CN/AIDE-Plus/commit/e702347df0c10b718df5aeb4798402802334e310)
-- [x] Modified XML completion logic [0ecb637](https://github.com/neu233/AIDE-Plus/commit/0ecb637e6cb672723df77925e5642fd4b6016c39)
+- [x] Modified XML completion logic [0ecb637](https://github.com/AndroidIDE-CN/AIDE-Plus/commit/f7960418b9326231d55726514f10385396e9e8b6)
 
 ### Planned Features
 - [ ] More completions (LSP)
