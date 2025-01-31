@@ -269,7 +269,12 @@ public class EclipseJavaCodeAnalyzer2 extends JavaCodeAnalyzer {
 
 	// 计算AIDE 语义分析信息
 	private List<ErrorInfo> aideSemanticAnalysis(SyntaxTree syntaxTree) {
-		super.v5(syntaxTree);
+		try{
+			super.v5(syntaxTree);
+		}catch(Throwable e){
+			
+		}
+		
 		//  保存AIDE语义分析的结果
 		List<ErrorInfo> allErrorInfos = getAllErrors(syntaxTree);
 		// 清除AIDE语义分析器错误

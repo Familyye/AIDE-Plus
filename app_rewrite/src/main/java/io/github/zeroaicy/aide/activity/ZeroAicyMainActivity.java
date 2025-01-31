@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,19 +55,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import android.view.Display;
 
 public class ZeroAicyMainActivity extends MainActivity {
 
 	// 用于通知AIDE CodeModel
 	@SuppressWarnings("unused")
-	private static final String TAG_1595554556 = "ZeroAicyMainActivity";
+	private static final String TAG_15955556 = "ZeroAicyMainActivity";
 
 	private static final String TAG = "ZeroAicyMainActivity";
 
 	static ZeroAicyExtensionInterface zeroAicyExtensionInterface;
 
 	boolean isRecreate = false;
+
+	boolean isOnCreated = false;
 	@Override
 	public void onCreate(Bundle bundle) {
 		if (isRecreate) {
@@ -80,11 +82,8 @@ public class ZeroAicyMainActivity extends MainActivity {
 		if (enableActionDrawerLayout()) {
 			setUpDrawerLayout();
 		}
-
-		if (!ZeroAicySetting.isWatch()) {
-			// 检查并申请管理外部储存权限
-			showRequestManageExternalStorage();
-		}
+		isOnCreated = true;
+		showRequestManageExternalStorage();
 	}
 
 	private boolean isExit = false;
@@ -310,26 +309,46 @@ public class ZeroAicyMainActivity extends MainActivity {
 
 	}
 
+	AlertDialog showRequestAlertDialog;
 	/**
 	 * 显示授权请求弹窗
 	 */
 	public void showRequestManageExternalStorage() {
+		
+		// 已经在显示了
+		if (this.showRequestAlertDialog != null && this.showRequestAlertDialog.isShowing()) {
+			return;
+		}
 
 		if (XXPermissions.isGranted(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
 			return;
 		}
 
+		// AppLog.println_e(Thread.currentThread().getStackTrace());
+
 		String app_name = getString(R.string.app_name);
 		String message = new StringBuilder("为了访问您设备上的文件，您需要手动为").append(app_name).append("授予「所有文件访问」权限，点击确认后进入设置界面，选择「")
 				.append(app_name).append("」并开启授权。").toString();
 
-		new AlertDialog.Builder(ZeroAicyMainActivity.this).setTitle("授权请求").setMessage(message)
-				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+		this.showRequestAlertDialog = new AlertDialog.Builder(ZeroAicyMainActivity.this).setTitle("授权请求")
+				.setMessage(message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						// System.out.println("dialog -> " + dialog);
 						requestManageExternalStorage();
+						dialog.dismiss();
 					}
-				}).show();
+				}).create();
+
+		// 获取当前窗口的LayoutParams
+		// Window window = this.showRequestAlertDialog.getWindow();
+		// 置顶
+		// window.setType(window.getAttributes().type  |= WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW);
+		
+		
+		this.showRequestAlertDialog.show();
+		// System.out.println("this.showRequestAlertDialog -> " + this.showRequestAlertDialog);
+
 	}
 
 	/**
@@ -353,17 +372,18 @@ public class ZeroAicyMainActivity extends MainActivity {
 	@Override
 	public boolean isSelfPermission(String permission) {
 		if (android.Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)) {
-			
+
 			// 适配 安卓低版本
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 				return super.isSelfPermission(permission);
 			}
-			
+
 			// 安卓11 
 			// android.permission.WRITE_EXTERNAL_STORAGE -> android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
-			
+
 			// 申请 MANAGE_EXTERNAL_STORAGE
-			showRequestManageExternalStorage();
+			if (ThreadPoolService.isUiThread() && this.isOnCreated)
+				showRequestManageExternalStorage();
 			// 不申请 WRITE_EXTERNAL_STORAGE
 			return true;
 		}
