@@ -7,7 +7,7 @@
 > If you want to use Gradle, please visit the Gradle project
 
 
-- [README in Chinese](README.md)
+- [README in Chinese](README_zh.md)
 - [Gradle Project](https://github.com/neu233/AIDE-Plus)
 
 # AIDE-Plus
